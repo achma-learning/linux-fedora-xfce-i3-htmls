@@ -1,0 +1,289 @@
+# ~/.config/i3/config — i3 4.25.1 (verified with `i3 --version`)
+#
+# ROUTE B: this machine logs into the standalone i3 session (/usr/share/xsessions/i3.desktop).
+# The XFCE pieces we want are started BY i3, as i3's own clients (see "XFCE COMPONENTS").
+# We never touch xfconf or xfce4-session; the XFCE session entry stays pristine as rollback.
+#
+# Every non-obvious directive cites the section of docs/userguide.txt that justifies it.
+# Syntax authority: `i3 -C -c <file>` against this binary, then docs/userguide.txt.
+
+set $mod Mod4
+
+# ─── COLOURS ──────────────────────────────────────────────────────────────────
+# Neutral greys, macOS-adjacent: the focused window is marked by a slightly
+# lighter hairline, not by a saturated colour.
+set $c-focus     #8a8a8a
+set $c-inactive  #3a3a3a
+set $c-unfocus   #2a2a2a
+set $c-urgent    #c05c5c
+set $c-text      #eeeeee
+set $c-text-dim  #8a8a8a
+set $c-indicator #6a9fb5
+
+# see userguide: "Changing colors"
+# order is: border  background  text  indicator  child_border
+client.focused          $c-focus     $c-focus    $c-text     $c-indicator $c-focus
+client.focused_inactive $c-inactive  $c-inactive $c-text-dim $c-inactive  $c-inactive
+client.unfocused        $c-unfocus   $c-unfocus  $c-text-dim $c-unfocus   $c-unfocus
+client.urgent           $c-urgent    $c-urgent   $c-text     $c-urgent    $c-urgent
+
+# ─── WORKSPACES ───────────────────────────────────────────────────────────────
+# Named via variables so renaming a workspace is a one-line change here.
+# Keep the leading number: i3 orders workspaces numerically only when the name
+# starts with a digit — see userguide: "Changing (named) workspaces".
+set $ws1  "1"
+set $ws2  "2"
+set $ws3  "3"
+set $ws4  "4"
+set $ws5  "5"
+set $ws6  "6"
+set $ws7  "7"
+set $ws8  "8"
+set $ws9  "9"
+set $ws10 "10"
+
+# ─── APPEARANCE ───────────────────────────────────────────────────────────────
+# Noto Sans is actually installed on this box (checked with fc-list). NOT DejaVu
+# Sans: only DejaVu Sans *Mono* is present here, so "DejaVu Sans" would silently
+# fall back to something else. The font is still used for tabbed/stacked titles.
+font pango:Noto Sans 10
+
+# 1px hairline instead of a titlebar. `pixel 1` keeps the resize/indicator edge
+# while removing the title text — see userguide: "Default border style".
+default_border pixel 1
+default_floating_border pixel 1
+
+# Hide borders that touch a screen edge, so a single window looks borderless.
+# NOTE: `smart_borders` is the OLD spelling and is superseded — the userguide
+# says hide_edge_borders replaced it. See userguide: "Hiding borders adjacent
+# to the screen edges".
+hide_edge_borders both
+
+# Focus follows the keyboard only. Prevents the pointer sitting over the panel
+# or a dock icon from stealing focus as windows move under it.
+focus_follows_mouse no
+
+# Drag floating windows with $mod + left mouse.
+floating_modifier $mod
+
+# Drag TILING windows with $mod + mouse. Deliberately NOT `modifier titlebar`
+# (the wizard's default): `default_border pixel 1` removes titlebars, so the
+# titlebar half of that setting would refer to something that no longer exists.
+# see userguide: "Tiling drag"
+tiling_drag modifier
+
+# ─── NO BAR ───────────────────────────────────────────────────────────────────
+# There is deliberately NO `bar { }` block. xfce4-panel is the bar — both panels:
+# panel-1 (systray, clock, pager, tasklist) and panel-2 (the autohiding dock).
+# The panel reserves its own space via the EWMH _NET_WM_STRUT_PARTIAL property,
+# which i3 honours automatically, so tiled windows will not slide under it.
+# Removing this block also retires i3status and the $refresh_i3status variable.
+
+# ─── XFCE COMPONENTS (Route B) ────────────────────────────────────────────────
+# Verified against /etc/xdg/autostart: every one of these .desktop files is
+# OnlyShowIn=XFCE, so dex-autostart --environment i3 does NOT start them and
+# these lines duplicate nothing. xfce4-panel has no autostart file at all — it
+# is normally a session client, which is exactly why it must be exec'd here.
+# CHOICE: `exec`, not `exec_always`. `exec` runs once, at i3 startup.
+# `exec_always` also re-runs on RESTART ($mod+Shift+r) — see userguide 4.19 —
+# which would fire a second copy of all five on every restart. Their
+# single-instance behaviour varies (xfce4-panel and xfsettingsd refuse and exit;
+# thunar --daemon and the polkit agent are less predictable), and "mostly
+# harmless" is not a design. With `exec`, a restart re-reads this config and
+# keeps the ALREADY-RUNNING components attached — nothing is started twice and
+# nothing is killed.
+exec --no-startup-id xfsettingsd
+exec --no-startup-id xfce4-panel
+exec --no-startup-id xfce4-power-manager
+exec --no-startup-id thunar --daemon
+
+# Polkit authentication agent. Without one, any GUI action needing root auth
+# (mounting a system disk in Thunar, dnfdragora) fails with no password prompt.
+# Its .desktop is also OnlyShowIn=XFCE, so dex will not start it either.
+exec --no-startup-id /usr/libexec/xfce-polkit
+
+# ─── AUTOSTART ────────────────────────────────────────────────────────────────
+# dex runs the XDG autostart entries that DO apply to environment i3 — that is
+# what currently starts nm-applet, blueman, abrt-applet, seapplet, dnfdragora.
+exec --no-startup-id dex-autostart --autostart --environment i3
+
+# The wizard's explicit `exec nm-applet` line is REMOVED: nm-applet.desktop is
+# NotShowIn=KDE;GNOME, so dex already starts it under i3. Keeping both asked for
+# it twice.
+
+# Lock before suspend. xss-lock takes a logind sleep-inhibit lock so i3lock is
+# on screen before the machine actually suspends, not after it wakes.
+exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
+
+# Compositor: shadows/fade, and vsync to stop tearing. Nothing else provides
+# compositing here — xfwm4's compositor never runs, because xfwm4 never runs.
+# exec_always so it comes back after an i3 restart. REQUIRES Phase 1.
+exec_always --no-startup-id picom
+
+# ─── LAUNCHING ────────────────────────────────────────────────────────────────
+bindsym $mod+Return exec --no-startup-id xfce4-terminal
+bindsym $mod+Shift+Return exec --no-startup-id thunar
+
+# rofi replaces dmenu. `drun` lists .desktop applications; `window` is a window
+# switcher, which dmenu has no equivalent for. Theming is via a .rasi theme file,
+# never the removed -bg/-fg CLI flags. REQUIRES Phase 1.
+bindsym $mod+d exec --no-startup-id rofi -show drun
+bindsym $mod+Tab exec --no-startup-id rofi -show window
+
+# ─── WINDOW MANAGEMENT ────────────────────────────────────────────────────────
+bindsym $mod+Shift+q kill
+
+# Focus, vim directions. NOTE this differs from the wizard config, which used
+# j/k/l/semicolon (shifted one key right). h=left j=down k=up l=right.
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+# Arrow duplicates, for while the vim keys are still unlearned.
+bindsym $mod+Left  focus left
+bindsym $mod+Down  focus down
+bindsym $mod+Up    focus up
+bindsym $mod+Right focus right
+
+# Move the focused window.
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+bindsym $mod+Shift+Left  move left
+bindsym $mod+Shift+Down  move down
+bindsym $mod+Shift+Up    move up
+bindsym $mod+Shift+Right move right
+
+# Split direction for the NEXT window opened in this container.
+# $mod+h is now focus-left, so horizontal split moves to $mod+b.
+bindsym $mod+b split h
+bindsym $mod+v split v
+
+bindsym $mod+f fullscreen toggle
+
+# Layouts: stacking = titles in a vertical list, tabbed = titles in a row.
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
+
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+
+# Focus the parent container — how you select a whole split to act on it.
+bindsym $mod+a focus parent
+
+# ─── WORKSPACES ───────────────────────────────────────────────────────────────
+# `workspace number` matches on the leading digit, so these still work if a
+# workspace is renamed to "1: mail" later.
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+
+# ─── LAPTOP KEYS ──────────────────────────────────────────────────────────────
+# Audio via wpctl (WirePlumber), verified present: this box runs PipeWire 1.6.8.
+# @DEFAULT_AUDIO_SINK@ is resolved at press time — no hardcoded sink index.
+# -l 1.0 caps volume at 100% so a repeated keypress cannot boost past unity.
+bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
+bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym XF86AudioMute        exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindsym XF86AudioMicMute     exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+
+# Brightness via brightnessctl, which writes through logind — NOT xbacklight,
+# whose RandR backlight property does not exist on this Broadwell/i915 panel.
+# REQUIRES Phase 1.
+bindsym XF86MonBrightnessUp   exec --no-startup-id brightnessctl set 5%+
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+
+# Media keys via playerctl (MPRIS). REQUIRES Phase 1.
+bindsym XF86AudioPlay exec --no-startup-id playerctl play-pause
+bindsym XF86AudioNext exec --no-startup-id playerctl next
+bindsym XF86AudioPrev exec --no-startup-id playerctl previous
+
+# Screenshot: XFCE's own tool, so it matches the rest of the desktop.
+bindsym Print exec --no-startup-id xfce4-screenshooter
+bindsym $mod+Print exec --no-startup-id xfce4-screenshooter --region
+
+# Lock now. loginctl asks logind, which triggers the xss-lock above — so the
+# lock path is the same one suspend uses, rather than a second parallel one.
+bindsym $mod+Escape exec --no-startup-id loginctl lock-session
+
+# ─── FLOATING RULES ───────────────────────────────────────────────────────────
+# Window types first: this catches XFCE's (and everyone else's) transient
+# dialogs generically, without naming each app.
+# see userguide: "Command criteria" — window_type compares _NET_WM_WINDOW_TYPE.
+for_window [window_type="dialog"]  floating enable
+for_window [window_type="utility"] floating enable
+for_window [window_type="splash"]  floating enable
+for_window [window_type="menu"]    floating enable
+
+# class = the SECOND part of WM_CLASS, instance = the first.
+# Verified from live windows with xprop where possible; see CHEATSHEET.md for
+# how to check any app yourself.
+for_window [class="Pavucontrol"]   floating enable
+for_window [class="Blueman-manager"] floating enable
+
+# Anki: deliberately NOT floated. Its WM_CLASS is verified ("anki", "Anki") but
+# the main window is a full app you work in for hours, so it tiles like anything
+# else. The window_type rules above already float its dialogs.
+# If Anki's Browse window ever tiles badly, add a rule for it — CHEATSHEET.md
+# has the xprop recipe.
+
+# ─── MODES ────────────────────────────────────────────────────────────────────
+# NOTE: the mode name is normally drawn by i3bar, and we have no i3bar —
+# xfce4-panel cannot display i3's mode. So these names document the config but
+# will NOT appear on screen. See the Phase 2 notes for the nagbar alternative.
+mode "resize  [hjkl or arrows]  shift = 1px  •  enter/esc = done" {
+        bindsym h resize shrink width  10 px or 10 ppt
+        bindsym j resize grow   height 10 px or 10 ppt
+        bindsym k resize shrink height 10 px or 10 ppt
+        bindsym l resize grow   width  10 px or 10 ppt
+
+        bindsym Left  resize shrink width  10 px or 10 ppt
+        bindsym Down  resize grow   height 10 px or 10 ppt
+        bindsym Up    resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow   width  10 px or 10 ppt
+
+        # Fine adjustment.
+        bindsym Shift+h resize shrink width  1 px or 1 ppt
+        bindsym Shift+j resize grow   height 1 px or 1 ppt
+        bindsym Shift+k resize shrink height 1 px or 1 ppt
+        bindsym Shift+l resize grow   width  1 px or 1 ppt
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+        bindsym $mod+r mode "default"
+}
+bindsym $mod+r mode "resize  [hjkl or arrows]  shift = 1px  •  enter/esc = done"
+
+# Power menu. NOT an i3 binding mode: a mode's name string is drawn by i3bar,
+# and there is no i3bar here, so an exit mode's on-screen help would be
+# invisible. rofi is visible and matches the launcher. REQUIRES Phase 1.
+# Path uses ~, the form the userguide itself uses (`exec_always ~/my_script.sh`,
+# userguide 4.19). Avoids any ambiguity about i3 substituting $-variables before
+# the shell sees them. No hardcoded /home/<user> path either way.
+bindsym $mod+Shift+e exec --no-startup-id ~/i3-setup/scripts/powermenu.sh
+
+# Direct reload/restart, kept because they are muscle memory from the wizard config.
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart

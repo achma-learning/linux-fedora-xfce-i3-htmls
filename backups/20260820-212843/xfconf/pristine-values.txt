@@ -1,0 +1,11 @@
+# Recorded 2026-08-20T21:28:43+01:00 during Phase 0 audit, BEFORE any modification.
+# Restore with:
+#   xfconf-query -c xfce4-session -p /sessions/Failsafe/Client0_Command -t string -sa xfwm4
+
+## xfce4-session /sessions/Failsafe/Client0_Command:
+Value is an array with 1 items:
+
+xfwm4
+
+## xfwm4 /general/use_compositing:
+true
