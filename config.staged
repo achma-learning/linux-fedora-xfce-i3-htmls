@@ -51,7 +51,20 @@ font pango:Noto Sans 10
 # 1px hairline instead of a titlebar. `pixel 1` keeps the resize/indicator edge
 # while removing the title text — see userguide: "Default border style".
 default_border pixel 1
-default_floating_border pixel 1
+
+# Floating windows get NO border at all: they already read as separate objects
+# via picom's shadow and rounded corners, so a border would just be a hard edge
+# cutting across the rounding.
+default_floating_border pixel 0
+
+# Gaps. Native since i3 4.22 (userguide 4.34 "Gaps") — i3-gaps was merged into
+# i3 and is NOT a separate package. Inner gaps only: the outer edge is left
+# flush so windows sit tight against the panel.
+gaps inner 8
+
+# No gaps when a workspace holds exactly one window — a lone window sits
+# full-bleed instead of floating in a frame of empty space.
+smart_gaps on
 
 # Hide borders that touch a screen edge, so a single window looks borderless.
 # NOTE: `smart_borders` is the OLD spelling and is superseded — the userguide
@@ -136,6 +149,9 @@ bindsym $mod+Shift+Return exec --no-startup-id thunar
 # in this repo so it is version-controlled with the config it matches, and so
 # nothing is written outside ~/i3-setup and ~/.config/i3.
 bindsym $mod+d exec --no-startup-id rofi -show drun -theme ~/i3-setup/rofi/macos-adjacent.rasi
+# Spotlight-style: $mod+space is the launcher. This displaced `focus
+# mode_toggle`, which moved to $mod+t.
+bindsym $mod+space exec --no-startup-id rofi -show drun -theme ~/i3-setup/rofi/macos-adjacent.rasi
 bindsym $mod+Tab exec --no-startup-id rofi -show window -theme ~/i3-setup/rofi/macos-adjacent.rasi
 
 # ─── WINDOW MANAGEMENT ────────────────────────────────────────────────────────
@@ -178,7 +194,10 @@ bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
 bindsym $mod+Shift+space floating toggle
-bindsym $mod+space focus mode_toggle
+
+# Move focus between the tiling and floating layers. Moved off $mod+space,
+# which is now the launcher (below).
+bindsym $mod+t focus mode_toggle
 
 # Focus the parent container — how you select a whole split to act on it.
 bindsym $mod+a focus parent

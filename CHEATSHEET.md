@@ -7,7 +7,8 @@ Generated from `config.staged`. Every binding below is in that file.
 |---|---|
 | `$mod+Return` | xfce4-terminal |
 | `$mod+Shift+Return` | Thunar |
-| `$mod+d` | rofi — application launcher (`drun`) |
+| `$mod+space` | rofi — application launcher (Spotlight) |
+| `$mod+d` | rofi — application launcher (same thing, older habit) |
 | `$mod+Tab` | rofi — window switcher |
 | `Print` | Screenshot (xfce4-screenshooter) |
 | `$mod+Print` | Screenshot, region select |
@@ -20,10 +21,13 @@ Generated from `config.staged`. Every binding below is in that file.
 | `$mod+Shift+h/j/k/l` | Move window left / down / up / right |
 | `$mod+Shift+←↓↑→` | Same, arrow keys |
 | `$mod+a` | Focus parent container (select a whole split) |
-| `$mod+space` | Jump between the tiling and floating layers |
+| `$mod+t` | Jump between the tiling and floating layers |
 
 > Note: this is **not** the i3 default. The stock wizard config uses `j/k/l/semicolon`
 > (shifted one key right). These are true vim directions.
+
+> `$mod+space` used to be `focus mode_toggle` in the stock config. It is the launcher now;
+> the tiling/floating toggle moved to `$mod+t`.
 
 ## Layout
 | Keys | Action |
@@ -35,6 +39,7 @@ Generated from `config.staged`. Every binding below is in that file.
 | `$mod+e` | Toggle split direction |
 | `$mod+f` | Fullscreen toggle |
 | `$mod+Shift+space` | Float / unfloat this window |
+| — | Gaps are 8px inner, and vanish when a workspace holds one window (`smart_gaps on`) |
 | `$mod+Shift+q` | Close window |
 | `$mod+r` | Enter **resize mode** |
 
@@ -95,3 +100,25 @@ then `$mod+Shift+c` to reload, and open the window again to confirm.
 generic `window_type="dialog"` rule. If the **Browse** window tiles badly, run the `xprop`
 recipe on it — it may report a normal window type — and add a rule using its `title` or
 `class`. That is a one-line change.
+
+
+## Global application menu (macOS menu bar) — NOT possible on Fedora 44
+
+Decided against, because the pieces do not exist in the repos. Verified with
+`dnf search appmenu` and `dnf search vala-panel` on 2026-08-20:
+
+- `appmenu-qt5` and `appmenu-qt5-profile.d` exist — these are **exporters only**.
+- `vala-panel` — **"No matches found"**. No `vala-panel-appmenu`, so no *registrar*
+  and no *panel consumer*.
+- No `appmenu-gtk3-module`, so GTK apps could not export a menu either.
+
+A global menubar needs three parts: an exporter (per toolkit), a registrar (D-Bus
+service collecting menus), and a panel plugin to display them. Fedora 44 ships only the
+first, for Qt. Getting the rest means building `vala-panel-appmenu` from source.
+
+> **Do not install `appmenu-qt5` or `appmenu-qt5-profile.d`.**
+> They make Qt applications *export* their menubar over D-Bus and **remove it from the
+> application window**. With no registrar and no panel plugin to display it, the menu
+> would be exported into nothing — **Anki and every other Qt app would lose its menu bar
+> entirely, with nowhere for it to appear.** The profile.d package makes this system-wide
+> for every Qt5 app at login, which is worse.
