@@ -1,0 +1,98 @@
+# xfce4-panel channel, 2026-08-20T22:39:28+01:00
+/configver                                    2
+/panels                                       [1,2]
+/panels/dark-mode                             true
+/panels/panel-1/icon-size                     16
+/panels/panel-1/length                        100
+/panels/panel-1/plugin-ids                    [1,2,3,4,5,19,6,7,8,9,10]
+/panels/panel-1/position                      p=6;x=0;y=0
+/panels/panel-1/position-locked               true
+/panels/panel-1/size                          26
+/panels/panel-2/autohide-behavior             1
+/panels/panel-2/length                        1
+/panels/panel-2/plugin-ids                    [11,12,13,14,15,16,17,18]
+/panels/panel-2/position                      p=10;x=0;y=0
+/panels/panel-2/position-locked               true
+/panels/panel-2/size                          48
+/plugins/plugin-1                             applicationsmenu
+/plugins/plugin-10                            actions
+/plugins/plugin-11                            showdesktop
+/plugins/plugin-12                            separator
+/plugins/plugin-13                            launcher
+/plugins/plugin-13/items                      [17862107061.desktop]
+/plugins/plugin-14                            launcher
+/plugins/plugin-14/items                      [17862107062.desktop]
+/plugins/plugin-15                            launcher
+/plugins/plugin-15/items                      [17862107063.desktop]
+/plugins/plugin-16                            launcher
+/plugins/plugin-16/items                      [17862107064.desktop]
+/plugins/plugin-17                            separator
+/plugins/plugin-18                            directorymenu
+/plugins/plugin-18/base-directory             /home/tool
+/plugins/plugin-19                            pulseaudio
+/plugins/plugin-19/enable-keyboard-shortcuts  true
+/plugins/plugin-19/known-players              Brave Origin;org.mozilla.firefox
+/plugins/plugin-2                             tasklist
+/plugins/plugin-2/grouping                    1
+/plugins/plugin-3                             separator
+/plugins/plugin-3/expand                      true
+/plugins/plugin-3/style                       0
+/plugins/plugin-4                             pager
+/plugins/plugin-5                             separator
+/plugins/plugin-5/style                       0
+/plugins/plugin-6                             systray
+/plugins/plugin-6/known-items                 [dnfdragora-updater,blueman]
+/plugins/plugin-6/known-legacy-items          [wi-fi network connection “zte_5g_6ft7yu” active: zte_5g_6ft7yu (70%),wi-fi network connection “zte_5g_6ft7yu” active: zte_5g_6ft7yu (65%),blueman,wi-fi network connection “zte_5g_6ft7yu” active: zte_5g_6ft7yu (74%),wi-fi network connection “zte_5g_6ft7yu” active: zte_5g_6ft7yu (68%),wi-fi network connection “zte_5g_6ft7yu” active: zte_5g_6ft7yu (59%),wi-fi network connection “zte_5g_6ft7yu” active: zte_5g_6ft7yu (78%),wi-fi network connection “zte_5g_6ft7yu” active: zte_5g_6ft7yu (76%),wi-fi network connection “zte_5g_6ft7yu” active: zte_5g_6ft7yu (72%),no network connection,xfce4-power-manager]
+/plugins/plugin-6/square-icons                true
+/plugins/plugin-7                             separator
+/plugins/plugin-7/style                       0
+/plugins/plugin-8                             clock
+/plugins/plugin-8/command                     
+/plugins/plugin-8/digital-layout              0
+/plugins/plugin-8/mode                        2
+/plugins/plugin-8/show-week-numbers           true
+/plugins/plugin-8/tooltip-format              %a %d %b  %l:%M %p
+/plugins/plugin-9                             separator
+/plugins/plugin-9/style                       0
+
+# xsettings channel
+/Gdk/WindowScalingFactor        1
+/Gtk/ButtonImages               true
+/Gtk/CanChangeAccels            false
+/Gtk/ColorPalette               black:white:gray50:red:purple:blue:light blue:green:yellow:orange:lavender:brown:goldenrod4:dodger blue:pink:light green:gray10:gray30:gray75:gray90
+/Gtk/CursorBlinkTimeout         10
+/Gtk/CursorThemeName            
+/Gtk/CursorThemeSize            0
+/Gtk/DecorationLayout           icon,menu:minimize,maximize,close
+/Gtk/DialogsUseHeader           false
+/Gtk/EnableAnimations           true
+/Gtk/EnablePrimaryPaste         false
+/Gtk/FontName                   Sans 10
+/Gtk/IconSizes                  
+/Gtk/ImModule                   gtk-im-context-simple:xim
+/Gtk/KeynavUseCaret             false
+/Gtk/KeyThemeName               
+/Gtk/MenuBarAccel               F10
+/Gtk/MenuImages                 true
+/Gtk/MonospaceFontName          Monospace 10
+/Gtk/OverlayScrolling           true
+/Gtk/RecentFilesEnabled         true
+/Gtk/RecentFilesMaxAge          -1
+/Gtk/TitlebarDoubleClick        toggle-maximize
+/Gtk/TitlebarMiddleClick        lower
+/Gtk/TitlebarRightClick         menu
+/Net/CursorBlink                true
+/Net/CursorBlinkTime            1200
+/Net/DndDragThreshold           8
+/Net/DoubleClickDistance        5
+/Net/DoubleClickTime            400
+/Net/EnableEventSounds          false
+/Net/EnableInputFeedbackSounds  false
+/Net/IconThemeName              Adwaita
+/Net/SoundThemeName             default
+/Net/ThemeName                  Adwaita
+/Xft/Antialias                  1
+/Xft/DPI                        96
+/Xft/Hinting                    -1
+/Xft/HintStyle                  hintfull
+/Xft/RGBA                       none
