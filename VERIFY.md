@@ -86,6 +86,22 @@ From your **next login** onward this section is automatic — that is what the `
 22. **Rollback works.** Run `~/i3-setup/undo.sh`, reload with `$mod+Shift+c`, confirm i3bar
     and dmenu return. Then re-apply and reload again. Better to learn this now than at 2am.
 
+23. **Minimize.** Focus a window, press `$mod+m` — it vanishes. Press `$mod+Shift+m` — it
+    returns, floating and centred. Press `$mod+Shift+m` again — it hides again.
+24. **Minimize animation.** With picom running, `$mod+m` should shrink the window downward
+    toward the bottom of the screen while fading; `$mod+Shift+m` reverses it.
+    → **This is the one part of the setup I could not verify.** The animation depends on i3's
+      scratchpad unmap being seen by picom as its `hide` trigger rather than `close`. The
+      config is correct either way — `hide`/`show` are documented, non-experimental triggers,
+      and every key is manpage-checked — but whether i3's unmap fires `hide` is a runtime
+      question and picom was not running when this was written.
+      If the window just disappears with no animation, check with:
+      ```bash
+      pkill picom; picom --config ~/i3-setup/picom.conf --log-level=debug 2>&1 | grep -i -e anim -e trigger
+      ```
+      then minimize a window and watch which trigger fires. If it reports `close` instead of
+      `hide`, tell me and I will move the animation onto that trigger — a one-line change.
+
 ## C. Known limitations, not bugs
 
 - **Binding-mode names are invisible.** The resize mode's name string is drawn by i3bar and
