@@ -15,6 +15,8 @@
 
 set -euo pipefail
 
+SETUP_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+
 if ! command -v rofi >/dev/null 2>&1; then
     command -v notify-send >/dev/null 2>&1 && \
         notify-send "powermenu" "rofi is not installed — nothing to do."
@@ -22,8 +24,16 @@ if ! command -v rofi >/dev/null 2>&1; then
     exit 1
 fi
 
-# Single place to adjust rofi's CLI, in case flags differ on this rofi major version.
-menu() { rofi -dmenu -i -no-custom -p "$1"; }
+# Flags verified against the INSTALLED rofi 2.0.0 manpages, not from memory:
+#   -dmenu      rofi(1):163
+#   -i          rofi-dmenu(5):72   case-insensitive match
+#   -no-custom  rofi-dmenu(5):97   only a listed entry can be returned
+#   -p prompt   rofi-dmenu(5):57
+# -no-custom matters here: without it, typing free text and pressing Enter would
+# return that text, and the case statement below would fall through to exit 0 --
+# harmless, but it also means no typo can ever be read as "Shut down".
+THEME="$SETUP_DIR/rofi/macos-adjacent.rasi"
+menu() { rofi -dmenu -i -no-custom -p "$1" -theme "$THEME"; }
 
 choice=$(printf '%s\n' \
     "  Lock" \

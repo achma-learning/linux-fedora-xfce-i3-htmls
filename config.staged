@@ -117,7 +117,7 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 
 # Compositor: shadows/fade, and vsync to stop tearing. Nothing else provides
 # compositing here — xfwm4's compositor never runs, because xfwm4 never runs.
-# exec_always so it comes back after an i3 restart. REQUIRES Phase 1.
+# exec_always so it comes back after an i3 restart.
 exec_always --no-startup-id picom
 
 # ─── LAUNCHING ────────────────────────────────────────────────────────────────
@@ -126,9 +126,13 @@ bindsym $mod+Shift+Return exec --no-startup-id thunar
 
 # rofi replaces dmenu. `drun` lists .desktop applications; `window` is a window
 # switcher, which dmenu has no equivalent for. Theming is via a .rasi theme file,
-# never the removed -bg/-fg CLI flags. REQUIRES Phase 1.
-bindsym $mod+d exec --no-startup-id rofi -show drun
-bindsym $mod+Tab exec --no-startup-id rofi -show window
+# never the removed -bg/-fg CLI flags. rofi here is 2.0.0 — the theme was written
+# against the installed rofi-theme(5), not 1.7-era examples.
+# -theme takes a path or an installed theme name (rofi(1):492). The theme lives
+# in this repo so it is version-controlled with the config it matches, and so
+# nothing is written outside ~/i3-setup and ~/.config/i3.
+bindsym $mod+d exec --no-startup-id rofi -show drun -theme ~/i3-setup/rofi/macos-adjacent.rasi
+bindsym $mod+Tab exec --no-startup-id rofi -show window -theme ~/i3-setup/rofi/macos-adjacent.rasi
 
 # ─── WINDOW MANAGEMENT ────────────────────────────────────────────────────────
 bindsym $mod+Shift+q kill
@@ -211,11 +215,10 @@ bindsym XF86AudioMicMute     exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_
 
 # Brightness via brightnessctl, which writes through logind — NOT xbacklight,
 # whose RandR backlight property does not exist on this Broadwell/i915 panel.
-# REQUIRES Phase 1.
 bindsym XF86MonBrightnessUp   exec --no-startup-id brightnessctl set 5%+
 bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
 
-# Media keys via playerctl (MPRIS). REQUIRES Phase 1.
+# Media keys via playerctl (MPRIS).
 bindsym XF86AudioPlay exec --no-startup-id playerctl play-pause
 bindsym XF86AudioNext exec --no-startup-id playerctl next
 bindsym XF86AudioPrev exec --no-startup-id playerctl previous
@@ -278,7 +281,7 @@ bindsym $mod+r mode "resize  [hjkl or arrows]  shift = 1px  •  enter/esc = don
 
 # Power menu. NOT an i3 binding mode: a mode's name string is drawn by i3bar,
 # and there is no i3bar here, so an exit mode's on-screen help would be
-# invisible. rofi is visible and matches the launcher. REQUIRES Phase 1.
+# invisible. rofi is visible and matches the launcher.
 # Path uses ~, the form the userguide itself uses (`exec_always ~/my_script.sh`,
 # userguide 4.19). Avoids any ambiguity about i3 substituting $-variables before
 # the shell sees them. No hardcoded /home/<user> path either way.
