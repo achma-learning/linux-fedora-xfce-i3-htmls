@@ -202,6 +202,19 @@ bindsym $mod+t focus mode_toggle
 # Focus the parent container — how you select a whole split to act on it.
 bindsym $mod+a focus parent
 
+# ─── MINIMIZE (scratchpad) ────────────────────────────────────────────────────
+# i3 has no "minimize". The scratchpad is the equivalent — see userguide 6.21
+# "Scratchpad". `move scratchpad` sends the focused window to a hidden
+# workspace; the userguide is explicit that "there is no way to open that
+# workspace", so the ONLY way back is `scratchpad show`.
+# `scratchpad show` brings it back as a FLOATING window centred on the current
+# workspace, and pressing it again on a visible scratchpad window hides it
+# again — so $mod+Shift+m is a toggle once the window is up.
+# With several windows in the scratchpad, repeated `scratchpad show` cycles
+# through them.
+bindsym $mod+m move scratchpad
+bindsym $mod+Shift+m scratchpad show
+
 # ─── WORKSPACES ───────────────────────────────────────────────────────────────
 # `workspace number` matches on the leading digit, so these still work if a
 # workspace is renamed to "1: mail" later.

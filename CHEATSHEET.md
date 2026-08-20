@@ -39,6 +39,8 @@ Generated from `config.staged`. Every binding below is in that file.
 | `$mod+e` | Toggle split direction |
 | `$mod+f` | Fullscreen toggle |
 | `$mod+Shift+space` | Float / unfloat this window |
+| `$mod+m` | **Minimize** — send window to the scratchpad |
+| `$mod+Shift+m` | **Un-minimize** — recall a scratchpad window |
 | — | Gaps are 8px inner, and vanish when a workspace holds one window (`smart_gaps on`) |
 | `$mod+Shift+q` | Close window |
 | `$mod+r` | Enter **resize mode** |
@@ -102,6 +104,22 @@ recipe on it — it may report a normal window type — and add a rule using its
 `class`. That is a one-line change.
 
 
+## Visual baseline — KEEP THESE
+
+These are settled. **Any future change that would remove one of them must be flagged to me
+before it is made**, not applied and mentioned afterwards:
+
+1. **Rounded corners** — `corner-radius = 10` in `picom.conf`, with square corners only where
+   they are deliberate (the top panel, fullscreen windows, i3 helper windows).
+2. **Full-width bottom dock** — panel-2, the 48px autohiding launcher bar. Both panels stay;
+   the dock is rounded and shadowed, the top panel is flush.
+3. **Fade animations** — `fading = true` plus the `animations` block. Windows fade and scale
+   on open/close, and shrink downward on minimize.
+
+Things that would quietly break one of these: switching picom's `rules` back to the legacy
+exclude options, setting `corner-radius = 0` globally, removing panel-2 from
+`/panels/plugin-ids`, or setting `fading = false`.
+
 ## Global application menu (macOS menu bar) — NOT possible on Fedora 44
 
 Decided against, because the pieces do not exist in the repos. Verified with
@@ -122,3 +140,34 @@ first, for Qt. Getting the rest means building `vala-panel-appmenu` from source.
 > would be exported into nothing — **Anki and every other Qt app would lose its menu bar
 > entirely, with nowhere for it to appear.** The profile.d package makes this system-wide
 > for every Qt5 app at login, which is worse.
+
+
+## Minimize — how it actually works
+
+i3 has **no minimize**. The nearest thing is the **scratchpad**, and it behaves differently
+enough to be worth reading once (userguide 6.21, "Scratchpad").
+
+| Keys | What happens |
+|---|---|
+| `$mod+m` | Sends the focused window to the scratchpad. It vanishes. |
+| `$mod+Shift+m` | Brings a scratchpad window back, **floating and centred** on the current workspace. |
+
+**Read this part.** The userguide says of the scratchpad workspace: *"There is no way to open
+that workspace."* A window you send there is **invisible and unreachable except through
+`$mod+Shift+m`**. It will not appear in the panel's window list, it is not on any workspace
+you can switch to, and `$mod+Tab` (rofi window switcher) will not show it. If you forget the
+recall binding, the window is effectively gone until you remember it — that is the one real
+sharp edge here.
+
+Other things worth knowing:
+
+- Pressing `$mod+Shift+m` again while a scratchpad window is **visible** hides it again, so it
+  works as a toggle once the window is up.
+- With **several** windows in the scratchpad, repeated `$mod+Shift+m` **cycles** through them.
+- A recalled window comes back **floating**, not tiled — even if it was tiled when you
+  minimized it. To put it back in the tiling layout, press `$mod+Shift+space`.
+- To pull a *specific* window back rather than cycling, use criteria:
+  `bindsym $mod+n [class="Anki"] scratchpad show`
+
+The downward shrink-and-fade is picom's `hide` animation, not i3's — i3 only unmaps the
+window. If the animation does not play, the config is still correct; see VERIFY.md.
