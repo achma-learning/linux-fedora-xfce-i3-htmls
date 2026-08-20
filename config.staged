@@ -115,10 +115,14 @@ exec --no-startup-id dex-autostart --autostart --environment i3
 # on screen before the machine actually suspends, not after it wakes.
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 
-# Compositor: shadows/fade, and vsync to stop tearing. Nothing else provides
-# compositing here — xfwm4's compositor never runs, because xfwm4 never runs.
-# exec_always so it comes back after an i3 restart.
-exec_always --no-startup-id picom
+# Compositor: shadows/fade/blur/rounded corners, and vsync to stop tearing.
+# Nothing else provides compositing here — xfwm4's compositor never runs,
+# because xfwm4 never runs. exec_always so it comes back after an i3 restart.
+# Config lives in this repo; validate it with:
+#   picom --config ~/i3-setup/picom.conf --diagnostics
+# CAVEAT: that validator catches bad VALUES and syntax errors, but silently
+# ignores unknown option NAMES — a typo'd key is accepted and does nothing.
+exec_always --no-startup-id picom --config ~/i3-setup/picom.conf
 
 # ─── LAUNCHING ────────────────────────────────────────────────────────────────
 bindsym $mod+Return exec --no-startup-id xfce4-terminal
