@@ -23,5 +23,21 @@
   session. Edit in place and show a diff of every change.
 - Never pipe stderr into a filter (`cmd 2>&1 | grep x`): a missing binary then reads as an
   empty result rather than an error. Verify negatives with `command -v` or an exit status.
+- SANDBOX / STALENESS CAVEAT. Never declare a binary or package ABSENT on a single negative
+  check. Confirm with an independent method — `ls` the real path, `rpm -q`, `rpm -ql` — and
+  state which methods agreed. A false "missing" wastes time; a false "present" writes a dead
+  binding into the user's daily driver.
+  Equally: a POSITIVE result is only a snapshot. This machine is modified by the user while
+  work is in progress — twice this session a package was genuinely absent when checked and
+  present minutes later (Anki 21:35; dnf txn 41 at 22:05:58 local). Re-check any fact that
+  gates an action immediately BEFORE acting on it, not once at audit time.
+  Diagnosed causes, so the next investigation does not chase the wrong thing:
+    * CONFIRMED sandbox limit: /proc exposes no numeric PID dirs, so `ps` sees nothing.
+      Identify running components via X properties (xprop) or the session bus (busctl).
+    * NOT a cause, tested and ruled out: restricted PATH (/usr/bin is present), unreadable
+      rpmdb (`rpm -q --dbpath /var/lib/rpm` agrees with plain `rpm -q`), or a lagging
+      filesystem view (new files appear within minutes).
+  Note when reading timestamps: `dnf history` renders UTC while `rpm -q --qf %{INSTALLTIME:date}`
+  and `date` render local (+01 here). A 1-hour "gap" between them is that, not a real gap.
 - Work only inside ~/i3-setup and ~/.config/i3. Never read or write elsewhere in $HOME
   without asking first.
