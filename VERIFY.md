@@ -184,14 +184,6 @@ From your **next login** onward this section is automatic — that is what the `
       missing on this box. If `sudo dnf install fuse-libs` is ever run, the AppImage at
       ~/.local/bin/Obsidian.AppImage will also work directly.
 
-34. **New windows stack instead of splitting.** On an EMPTY workspace, open two windows.
-    They should appear as two stacked title bars with one window visible, not side by side.
-    → Verified 2026-08-22 on workspace 7 with two `kitty --class=stacktest` windows: the
-      container holding them reports `layout: "stacked"` in `i3-msg -t get_tree`.
-    → It applies to NEW containers only. A workspace that already holds a split keeps it,
-      so test on an empty one. The workspace's own root node always reads `splith` — look
-      at the container holding the windows, not the workspace node.
-
 ## C. Known limitations, not bugs
 
 - **Binding-mode names are invisible.** The resize mode's name string is drawn by i3bar and
