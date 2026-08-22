@@ -143,7 +143,7 @@ every wrapper itself.
 | 3 | xfce4-terminal (`$mod+Return`) and kitty |
 | 4 | the AI chatbot window (`$mod+Shift+a`) |
 | 5 | Brave Origin, the default browser |
-| 4 | the AI Hub (`$mod+Shift+a`) |
+| 4 | the AI Hub (`$mod+Shift+a`) **and every assistant opened from it** |
 | 6 | Obsidian |
 | 8 | Anki |
 | 10 | cliamp, in a terminal started with `--role=cliamp` |
@@ -174,10 +174,15 @@ chatbots themselves so you can hop between them without going back to the hub.
 Two things that look odd and are deliberate:
 
 **It runs a local web server.** `bin/ai-hub` serves the folder on `127.0.0.1:8765` and
-opens *that*, rather than the file directly, because browsers refuse `fetch()` from a
-`file://` page — a file-URL hub shows an empty grid. It also gives the userscript a fixed
-address to send you back to. The server is started only if the port is not already
-answering, so launching twice is harmless.
+opens *that*, rather than the file directly. Partly because browsers refuse `fetch()` from
+a `file://` page — a file-URL hub shows an empty grid — but mainly because **a link cannot
+open an assistant in its own window**. `target="_blank"` from an app window becomes a tab
+in whatever ordinary browser window already exists, on whatever workspace *that* window is
+on; no window is created, so no i3 rule can place it. So a left click asks the server
+(`/open?id=…`), which runs `bin/ai-open` and starts the assistant as its own `--app`
+window, which then lands on workspace 4. The endpoint takes an id and looks it up in
+`ai.json`, so it can only ever launch something already on the list. Middle-click and
+ctrl-click still follow the plain link.
 
 **The assistant list exists twice.** A userscript on `claude.ai` cannot read from
 `127.0.0.1` (cross-origin), and standing up a CORS service to share twelve lines of data
@@ -200,6 +205,14 @@ Two wrinkles the script works around, both verified here:
   but **`fuse-libs` (libfuse.so.2) is not**, and installing it needs root. So the script
   unpacks the AppImage once at update time and runs the extracted tree. If you would rather
   run the AppImage directly: `sudo dnf install fuse-libs`.
+
+**How workspace 4 and 5 are told apart.** Every Brave window has class `Brave-origin`, so
+class is useless here. The *instance* is what differs: an ordinary window's is
+`brave-origin`, and an `--app` window's is derived from its URL (`claude.ai__new`,
+`gemini.google.com`, `127.0.0.1`). So the config sends `instance="^brave-origin$"` to 5 and
+then catches everything else on class into 4. Written that way deliberately — listing the
+assistants' domains in the i3 config would be a third place to edit whenever one is added
+to `ai.json`.
 
 The chatbot rule is the fiddly one. `scripts/aichat.sh` opens the default browser with
 `--app=<url>`, and Brave **ignores `--class` in app mode** — the window still reports class

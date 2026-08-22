@@ -151,6 +151,7 @@ function render() {
       `<p>${s.blurb}</p>` +
       `<div class="open">Open<span class="arrow">↗</span></div>`;
     a.addEventListener("mouseenter", () => select(i));
+    a.addEventListener("click", ev => launch(s, ev));
     a.querySelector(".star").addEventListener("click", ev => {
       ev.preventDefault(); ev.stopPropagation();
       toggleFav(s);
@@ -162,6 +163,28 @@ function render() {
   countEl.textContent = visible.length === services.length
     ? services.length + " assistants"
     : visible.length + " of " + services.length;
+}
+
+/* Opening an assistant.
+ *
+ * The href is a real link, so middle-click, ctrl-click and a statically hosted
+ * copy of this page all still work. But a plain left click is intercepted and
+ * handed to the local server instead, because a browser turns target="_blank"
+ * from an app window into a TAB in whatever ordinary browser window already
+ * exists — on whatever workspace that window is on. No window is created, so no
+ * window-manager rule can place it. /open?id= asks the server to start the
+ * assistant as its own application window, which i3 can then assign.
+ *
+ * If the server is not there (page opened from a static host), nothing is
+ * intercepted and the link behaves normally.
+ */
+function launch(service, ev) {
+  if (ev.defaultPrevented) return;
+  if (ev.button !== 0 || ev.ctrlKey || ev.shiftKey || ev.metaKey || ev.altKey) return;
+  ev.preventDefault();
+  fetch("open?id=" + encodeURIComponent(service.id))
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); })
+    .catch(() => window.open(service.url, "_blank", "noopener"));
 }
 
 function select(i) {

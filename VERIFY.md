@@ -158,6 +158,16 @@ From your **next login** onward this section is automatic — that is what the `
       every `--app` window the same WM_CLASS and vary only the instance, so the rule keys
       on `instance`, not `class`.
 
+33. **An assistant opened from the hub lands on workspace 4, not 5.** Click a card. A new
+    window (not a tab) should appear beside the hub on ws4.
+    → Verified 2026-08-22: `curl "http://127.0.0.1:8765/open?id=deepseek"` returned 204 and
+      a window `instance=chat.deepseek.com` appeared on ws4, while the ordinary Brave window
+      (`instance=brave-origin`) stayed on ws5. `?id=bogus` returns 404 — the endpoint takes
+      an id and looks it up in ai.json, so it cannot launch anything not on the list.
+    → If an assistant opens as a TAB on ws5 instead, the click was not intercepted: the
+      local server is not running, or the page was loaded from somewhere other than
+      127.0.0.1. That is the designed fallback, not a crash — a plain link still works.
+
 31. **The ✦ AI button appears inside chatbots.** With the userscript installed in
     Violentmonkey/Tampermonkey, open claude.ai. A small `✦ AI` button sits top-right;
     `alt`+`a` opens the switcher.

@@ -341,9 +341,21 @@ assign [window_role="^cliamp$"] → number $ws10
 # instance. This will also catch any OTHER --app window you ever serve from
 # 127.0.0.1; there is only the hub today.
 assign [instance="^127\\.0\\.0\\.1$"] → number $ws4
-assign [instance="^(claude\.ai|chatgpt\.com|chat\.deepseek\.com)"] → number $ws4
 assign [class="^AIChat$"]        → number $ws4
-assign [class="^Brave-origin$"]  → number $ws5
+# Ordinary browsing goes to 5; anything the browser opened as an APPLICATION
+# window goes to 4.
+#
+# The two are told apart by instance, not class — every Brave window has class
+# "Brave-origin". A normal window's instance is "brave-origin"; an --app window's
+# instance is derived from its URL ("claude.ai__new", "gemini.google.com",
+# "127.0.0.1"). So the specific rule below catches ordinary browsing and the
+# catch-all after it takes every app window.
+#
+# Written this way on purpose: listing the assistants' domains here would mean a
+# third place to edit whenever one is added to ai-hub/data/ai.json. Any other
+# Brave app window (a PWA, say) will also land on 4 — nothing else here uses one.
+assign [instance="^brave-origin$"] → number $ws5
+assign [class="^Brave-origin$"]  → number $ws4
 assign [class="^Thunar$"]        → number $ws1
 assign [class="^Xfce4-terminal$"] → number $ws3
 assign [class="^kitty$"]         → number $ws3

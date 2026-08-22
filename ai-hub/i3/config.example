@@ -17,6 +17,15 @@ bindsym $mod+Shift+a exec --no-startup-id ~/i3-setup/ai-hub/bin/ai-hub
 #    Check yours with:  xprop WM_CLASS   then click the hub window.
 assign [instance="^127\.0\.0\.1$"] → number 4
 
+#    And the assistants opened FROM the hub. They are app windows too, so their
+#    instance is their own host ("claude.ai__new", "gemini.google.com", …),
+#    while an ordinary browser window's instance is the browser's own name.
+#    Sending ordinary browsing somewhere else first and then catching everything
+#    left over means you never have to list the assistants' domains here — which
+#    would be a third place to edit every time you add one.
+assign [instance="^brave-origin$"] → number 5
+assign [class="^Brave-origin$"]    → number 4
+
 # 3. Optional: open the hub at login. Use `exec`, not `exec_always`, or an i3
 #    restart opens a second copy.
 # exec --no-startup-id ~/i3-setup/ai-hub/bin/ai-hub

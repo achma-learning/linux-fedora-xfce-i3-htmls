@@ -28,7 +28,10 @@ ai-hub/
 ├── style.css
 ├── app.js                renders the grid, handles the keyboard
 ├── data/ai.json          THE list of assistants — edit this one
-├── bin/ai-hub            launcher: serves the page, opens it as an app window
+├── bin/
+│   ├── ai-hub            launcher: serves the page, opens it as an app window
+│   ├── ai-hub-server.py  static files + /open?id=, which launches assistants
+│   └── ai-open           opens one URL as an application window
 ├── userscript/           the ✦ AI button for chatbot sites
 │   └── ai-hub.user.js
 └── i3/config.example     the i3 bindings and window rules
@@ -90,12 +93,28 @@ phase because several chatbot sites swallow keystrokes before they bubble.
 ## Two design decisions worth knowing
 
 **Why a local server instead of opening `index.html` directly.**
-The page loads `data/ai.json` with `fetch()`, and browsers refuse `fetch()` from
-a `file://` page, so a file-URL hub shows an empty grid. `bin/ai-hub` therefore
-serves the folder on `127.0.0.1:8765` (loopback only) and opens that. It also
-gives the userscript a fixed address to send you back to. The server is started
-only if the port is not already answering, so running the launcher twice is
-harmless.
+Three reasons, and the third is the one that matters.
+
+1. The page loads `data/ai.json` with `fetch()`, and browsers refuse `fetch()`
+   from a `file://` page, so a file-URL hub shows an empty grid.
+2. It gives the userscript a fixed address to send you back to.
+3. **A link cannot open an assistant in its own window.** `target="_blank"` from
+   an app window becomes a *tab* in whatever ordinary browser window already
+   exists, on whatever workspace that window is sitting on. No window is
+   created, so no window-manager rule can place it — and the assistant lands
+   wherever general browsing lives instead of on the AI workspace. So a plain
+   left click asks the server (`/open?id=…`) instead, and the server runs
+   `bin/ai-open`, which starts the assistant as its own `--app` window.
+
+The endpoint takes an **id, not a URL**, and looks it up in `data/ai.json`, so
+the only addresses it can ever launch are the ones already listed there. It
+listens on loopback only. The server starts only if the port is not already
+answering, so running the launcher twice is harmless.
+
+Middle-click, ctrl-click and a statically hosted copy of the page are all
+untouched — they follow the ordinary link. Only a plain left click is
+intercepted, and if the endpoint is not there the click falls back to opening a
+tab.
 
 **Why the assistant list exists twice.**
 `data/ai.json` is the source of truth for the page. The userscript keeps its own
