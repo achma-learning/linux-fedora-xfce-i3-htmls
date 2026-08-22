@@ -5,13 +5,19 @@
 # config just calls this once, with `exec` (not exec_always), so it runs at
 # login and not again on every i3 restart.
 #
-# WHERE each app lands is NOT decided here -- it is decided by the `assign`
-# rules in ~/.config/i3/config, which key off WM_CLASS / instance / role. That
-# split is deliberate: opening an app by hand later puts it in the same place
-# as opening it at login.
+# WHERE each app lands is mostly decided by the `assign` rules in
+# ~/.config/i3/config, which key off WM_CLASS / instance / role, so opening one
+# of those apps by hand later puts it in the same place as opening it at login.
 #
-#   thunar                     -> workspace 1
-#   xfce4-terminal             -> workspace 3, fullscreen (--role=main-term)
+# The TERMINAL and the FILE MANAGER are deliberately excluded from that. They
+# are the two things you open constantly, and they should appear where you
+# already are — so they have no assign rule, and are placed at login only: the
+# terminal by the --role=main-term for_window rule, the file manager by
+# place_once() below.
+#
+#   thunar                     -> workspace 1 AT LOGIN ONLY (place_once below)
+#   xfce4-terminal             -> workspace 3 AT LOGIN ONLY, fullscreen
+#                              (--role=main-term + a for_window rule)
 #   brave-origin (default browser) -> workspace 5
 #   AI Hub                     -> workspace 4
 #   obsidian                   -> workspace 6
@@ -25,6 +31,30 @@
 set -u
 
 launch() { command -v "$1" >/dev/null || { echo "autostart: $1 not installed, skipped" >&2; return; }; "$@" & }
+
+# place_once <workspace-number> <i3 criteria> -- move a window there ONE time.
+#
+# Used instead of an `assign` rule for the file manager, because an assign rule
+# is permanent: it would send every Thunar window you ever open to workspace 1,
+# and the whole point is that opening one later should put it where you already
+# are. This runs at login only.
+#
+# Polling rather than a fixed sleep: the move itself is the existence test.
+# `i3-msg` answers {"success":false,"error":"Nothing to move: specified criteria
+# don't match any window"} until the window is actually there, so retry until it
+# succeeds or we give up.
+place_once() {
+    ws=$1; crit=$2
+    for _ in $(seq 40); do
+        if i3-msg "[$crit] move --no-auto-back-and-forth to workspace number $ws" 2>/dev/null \
+             | grep -q '"success":true'; then
+            return 0
+        fi
+        sleep 0.5
+    done
+    echo "autostart: gave up waiting for a window matching $crit" >&2
+    return 1
+}
 
 # The browser is resolved at run time rather than hardcoded, the same way
 # scripts/aichat.sh does it, so this keeps working if the default changes.
@@ -44,7 +74,9 @@ default_browser() {
 }
 
 launch thunar
-sleep 1
+# Thunar has no usable marker — it ignores --class, because its daemon is what
+# creates the window, not the process we just started. So find it afterwards.
+place_once 1 'class="^Thunar$"'
 
 # --role=main-term does two jobs: it marks this as THE session terminal (i3
 # opens it fullscreen on workspace 3) without making every terminal you open

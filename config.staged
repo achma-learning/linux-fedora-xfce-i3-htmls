@@ -375,23 +375,31 @@ assign [class="^AIChat$"]        → number $ws4
 # Brave app window (a PWA, say) will also land on 4 — nothing else here uses one.
 assign [instance="^brave-origin$"] → number $ws5
 assign [class="^Brave-origin$"]  → number $ws4
-assign [class="^Thunar$"]        → number $ws1
-assign [class="^Xfce4-terminal$"] → number $ws3
-assign [class="^kitty$"]         → number $ws3
+# NO assign rules for the terminal or the file manager, deliberately. Those two
+# should open WHERE YOU ARE, not always in the same place — an `assign` rule
+# applies forever, which is wrong for the two things you open constantly.
+# They are still put on workspaces 3 and 1 AT LOGIN, but by the login script
+# rather than by a permanent rule:
+#   * the session terminal is launched with --role=main-term and moved by the
+#     for_window rule below — only that one window carries the role;
+#   * the file manager is moved by scripts/autostart.sh once, after its window
+#     appears (Thunar has no usable marker: it ignores --class because its
+#     daemon is what actually creates the window).
 assign [class="^Anki$"]          → number $ws8
 # Obsidian, installed as an unpacked AppImage (scripts/obsidian-update.sh).
 # WM_CLASS read off the live window: "md.obsidian.obsidian", "md.obsidian.Obsidian".
 # The dots are regex metacharacters, hence the backslashes.
 assign [class="^md\.obsidian\.Obsidian$"] → number $ws6
 
-# Start fullscreen. Scoped to the two windows autostart.sh opens, NOT to their
-# whole application class: `for_window [class="^Xfce4-terminal$"] fullscreen
-# enable` would fullscreen every terminal you ever open, including the cliamp
-# one, which is not the same wish. The session terminal is marked with
-# --role=main-term for exactly this reason; Anki needs no marker because there
-# is only ever one Anki window class.
+# Place and fullscreen the LOGIN terminal. Scoped to the one window
+# autostart.sh opens, NOT to the whole application class: a rule on
+# `class="^Xfce4-terminal$"` would send every terminal you ever open to
+# workspace 3 and fullscreen it, including the cliamp one. The session terminal
+# is marked with --role=main-term for exactly this reason; Anki needs no marker
+# because there is only ever one Anki window class.
 # for_window runs when the window appears, so `$mod+f` still toggles normally
 # afterwards.
+for_window [window_role="^main-term$"] move --no-auto-back-and-forth to workspace number $ws3
 for_window [window_role="^main-term$"] fullscreen enable
 for_window [class="^Anki$"] fullscreen enable
 

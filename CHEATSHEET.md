@@ -146,8 +146,8 @@ every wrapper itself.
 
 | Opens on | What |
 |---|---|
-| 1 | Thunar (file manager) |
-| 3 | xfce4-terminal (`$mod+Return`) and kitty |
+| 1 | Thunar — **at login only** |
+| 3 | the session terminal — **at login only** |
 | 4 | the AI chatbot window (`$mod+Shift+a`) |
 | 5 | Brave Origin, the default browser |
 | 4 | the AI Hub (`$mod+Shift+a`) **and every assistant opened from it** |
@@ -155,7 +155,19 @@ every wrapper itself.
 | 8 | Anki |
 | 10 | cliamp, in a terminal started with `--role=cliamp` |
 
-These apply whenever the app opens — at login or by hand. **The login set is
+Most of these apply whenever the app opens — at login or by hand. **The terminal and the
+file manager are the exceptions**: they have no `assign` rule at all, so they open on
+whatever workspace you are currently on. They are only put on 3 and 1 *at login*, and by
+two different mechanisms, because the two programs offer different handles:
+
+- the session terminal is launched with `--role=main-term`, and a `for_window` rule on
+  that role moves it and fullscreens it. Only that one window carries the role, so
+  `$mod+Return` terminals are unaffected;
+- Thunar has no usable marker — it ignores `--class`, because its *daemon* creates the
+  window rather than the process you launched — so `scripts/autostart.sh` moves it once
+  after the fact, with `place_once`, which retries until i3 stops answering
+  `"Nothing to move: specified criteria don't match any window"`.
+ **The login set is
 `~/i3-setup/scripts/autostart.sh`**: one line per app, called once from the i3 config with
 `exec` (not `exec_always`, so an i3 restart does not open a second copy of everything).
 Add a line there to have something else open at login; add an `assign` rule to say where.

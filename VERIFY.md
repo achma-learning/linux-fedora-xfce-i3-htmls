@@ -113,13 +113,16 @@ From your **next login** onward this section is automatic — that is what the `
       `opacity = 1.0` — the animations then have nothing to animate and focus changes go back
       to being instant.
 
-27. **Apps land on their assigned workspaces.** Open the file manager (`$mod+Shift+Return`),
-    a terminal (`$mod+Return`), the browser, and the chatbot (`$mod+Shift+a`), then check
-    where each one went: `i3-msg -t get_tree` and look at the workspace each window sits in.
-    Expected 1 / 3 / 5 / 4 respectively.
-    → Verified 2026-08-22 by launching all four and reading the tree back:
-      Thunar ws=1, Xfce4-terminal ws=3, Brave-origin (instance brave-origin) ws=5,
-      Brave-origin (instance claude.ai__new) ws=4.
+27. **Apps land on their assigned workspaces — except the two that should not.**
+    Open the browser and the chatbot (`$mod+Shift+a`): expected 5 and 4 wherever you were.
+    Then, from some other workspace, open a terminal (`$mod+Return`) and the file manager
+    (`$mod+Shift+Return`): both should stay **where you are**, NOT jump to 3 and 1.
+    → Verified 2026-08-22 from workspace 7: a new terminal and a new Thunar both stayed on
+      7, while an existing Thunar stayed on 1.
+    → Their login-only placement is checked separately in item 29.
+    → Verified 2026-08-22 by launching them and reading the tree back:
+      Brave-origin (instance brave-origin) ws=5, Brave-origin (instance claude.ai__new)
+      ws=4.
     → The chatbot rule matches on **instance**, not class: Brave ignores `--class` in
       `--app` mode. If it ever stops working, run `xprop WM_CLASS` on the chatbot window and
       compare the FIRST field against the regex in the config.
@@ -136,6 +139,11 @@ From your **next login** onward this section is automatic — that is what the `
 29. **The login set opens, on the right workspaces, at the right size.** Log out and back
     in. Expected: Thunar on 1, a terminal on 3 **fullscreen**, cliamp in a terminal on 10,
     the browser on 5, Anki on 8 **fullscreen**. Nothing should be opened twice.
+    → The terminal and Thunar get there WITHOUT an assign rule (see item 27). Verified
+      2026-08-22 by launching `xfce4-terminal --role=main-term` (landed on 3) and running
+      autostart.sh's `place_once 1 'class="^Thunar$"'` against a live Thunar (landed on 1).
+    → If Thunar ends up on the wrong workspace at login, `place_once` timed out: it retries
+      for 20 seconds, which is generous, but a very slow first boot could exceed it.
     → Check with `i3-msg -t get_tree`; each window's `fullscreen_mode` should be 1 for the
       ws3 terminal and Anki. Verified 2026-08-22 for every app individually by launching it
       and reading the tree back; the full login cycle itself is still untested (see

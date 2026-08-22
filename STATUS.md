@@ -28,8 +28,10 @@ base — not attempted, no packages installed for it.
   button-hover polish. This replaced a floating macOS-style dock on 2026-08-22 — see
   "Decisions taken and closed" below.
 - Workspace assignments (verified live, each app opened and its workspace read back from
-  i3's tree): file manager -> 1, terminal (xfce4-terminal and kitty) -> 3, AI chatbot -> 4,
-  default browser -> 5, Anki -> 8, cliamp-in-a-terminal -> 10.
+  i3's tree): AI chatbot -> 4, default browser -> 5, Anki -> 8, cliamp-in-a-terminal -> 10.
+  The terminal and the file manager deliberately have NO assign rule — they open on the
+  active workspace, and are placed on 3 and 1 at LOGIN ONLY (the terminal via a
+  --role=main-term for_window rule, Thunar via place_once() in autostart.sh).
   $mod+Shift+a opens the chatbot via scripts/aichat.sh.
 - AI Hub (ai-hub/): a one-screen keyboard launcher for 12 assistants + a userscript that
   injects a switcher button into the chatbots. Data lives in ai-hub/data/ai.json.
