@@ -32,16 +32,18 @@ Generated from `config.staged`. Every binding below is in that file.
 ## Layout
 | Keys | Action |
 |---|---|
-| `$mod+b` | Next window splits **horizontally** (side by side) |
+| `$mod+x` | Next window splits **horizontally** (side by side) — was `$mod+b` |
 | `$mod+v` | Next window splits **vertically** (stacked) |
 | `$mod+s` | Stacking layout (titles in a vertical list) |
 | `$mod+w` | Tabbed layout (titles in a row) |
-| `$mod+e` | Toggle split direction |
+| `$mod+Shift+s` | Toggle split direction — was `$mod+e` |
 | `$mod+f` | Fullscreen toggle |
 | `$mod+Shift+space` | Float / unfloat this window |
 | `$mod+m` | **Minimize** — send window to the scratchpad |
 | `$mod+Shift+m` | **Un-minimize** — recall a scratchpad window |
 | — | Gaps are 8px inner, and vanish when a workspace holds one window (`smart_gaps on`) |
+| `$mod+b` | Open the **default web browser** |
+| `$mod+e` | Open the **file manager** (Thunar) |
 | `$mod+Shift+a` | Open the **AI Hub** launcher (lands on workspace 4) |
 | `$mod+c` | Open one chatbot directly, skipping the hub (`$mod+Shift+c` is `reload`) |
 | `$mod+Shift+q` | Close window |
@@ -195,6 +197,23 @@ ctrl-click still follow the plain link.
 `127.0.0.1` (cross-origin), and standing up a CORS service to share twelve lines of data
 would cost more than it saves. Adding an assistant in two files is the entire maintenance
 burden of the thing.
+
+## Reinstalling this whole setup somewhere else
+
+`~/i3-setup/i3-xfce-fedora/` is a standalone installer repo: clone it on a fresh
+Fedora machine, run `./install.sh`, log into the i3 session, and you get this desktop —
+packages, both panels, picom, rofi, the workspace assignments, the login autostart,
+Obsidian, Anki and the AI Hub. `./install.sh --list` shows the steps; each is a separate
+script under `core/` that can be run on its own; `--dry-run` prints every privileged
+action instead of doing it.
+
+**`./capture.sh` is the other direction** — it pulls this machine back into that repo
+(i3 config, picom, rofi, GTK, the panel profile, xsettings, scripts, ai-hub). Change
+something by hand, run capture, commit. That is what stops the repo drifting from the
+machine.
+
+The i3 config's only machine-specific line is `set $repo`; everything else it calls is
+addressed through that variable, and the installer fills it in.
 
 ## Obsidian
 

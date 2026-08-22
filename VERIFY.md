@@ -196,6 +196,23 @@ From your **next login** onward this section is automatic — that is what the `
       `workspace_layout stacking` globally and then removing it left workspace 5 stacked
       until it was reset with `layout splith`.
 
+35. **The setup can be rebuilt from the installer repo.** On the reference machine the
+    read-only parts are runnable now:
+    `./i3-xfce-fedora/install.sh --dry-run --yes` (every step, nothing changed) and
+    `./i3-xfce-fedora/core/90-verify.sh` (checks programs, files and config validity).
+    → Verified 2026-08-22: dry-run completes and 90-verify reports all checks passed.
+    → `capture.sh` must be runnable from ANYWHERE, not just its own directory — it was
+      not, at first. `cd ~ && ~/i3-setup/i3-xfce-fedora/capture.sh` is the check.
+    → The package-installing steps (10, 20, 30, 70) have NEVER been run: this machine
+      already has everything, so they have only been exercised in dry-run. Do not describe
+      them as tested.
+
+36. **`$mod+b` opens the browser and `$mod+e` opens Thunar.** Both displaced layout
+    bindings that MOVED rather than vanished: `split h` is now `$mod+x`, and
+    `layout toggle split` is now `$mod+Shift+s`.
+    → If `$mod+b` does nothing, check `scripts/browser.sh` is executable and that
+      `xdg-settings get default-web-browser` names a .desktop file that actually exists.
+
 ## C. Known limitations, not bugs
 
 - **Binding-mode names are invisible.** The resize mode's name string is drawn by i3bar and

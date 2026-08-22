@@ -40,17 +40,23 @@ base — not attempted, no packages installed for it.
   installed/updated by scripts/obsidian-update.sh, which topgrade also runs. Lands on ws6
   (verified). Flatpak was installed first and then removed — the user asked for the
   AppImage specifically.
+- i3-xfce-fedora/: a standalone installer repo that rebuilds this whole desktop on a
+  fresh Fedora box (install.sh), and capture.sh which pulls this machine back into it.
+  Structure follows ChrisTitusTech/linutil at the user's request. The config-side steps
+  and the full --dry-run have been exercised here; the package-install steps have NOT
+  been run on a fresh machine and say so in its README.
 - Session autostart: scripts/autostart.sh, called once from the i3 config with `exec`
-  (not exec_always). Opens thunar, the session terminal, cliamp, the default browser and
-  Anki, staggered. The session terminal (--role=main-term) and Anki come up fullscreen;
+  (not exec_always). Opens thunar, the session terminal, cliamp, the AI Hub,
+  Obsidian, the default browser and Anki, staggered. The session terminal (--role=main-term) and Anki come up fullscreen;
   both verified from i3's tree (fullscreen_mode = 1 on ws3 and ws8). Anki fills the area
   between the two bars rather than covering them — that is Anki's own remembered state,
   not the rule.
 - All committed to git in this repo; ROLLBACK.md / undo.sh tested and working
 
 ## Still open, in priority order
-1. xfce4-statusnotifier-plugin is installed but not added to any panel.
-   (xfce4-docklike-plugin IS now on panel-2 — it is plugin-24, the task list.)
+1. xfce4-statusnotifier-plugin is **not installed** — `rpm -q` says so; an earlier note
+   here claiming otherwise was wrong. Add it only if the tray needs SNI apps.
+   (xfce4-docklike-plugin IS installed and is on panel-2 — plugin-24, the task list.)
 2. Fn keys (XF86MonBrightness*, XF86Audio*) not yet verified via `xev` on this keyboard —
    bindings exist in config but firing is unconfirmed.
 3. Full logout/login cycle not yet tested — everything so far was hand-started in a

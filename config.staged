@@ -27,6 +27,11 @@ client.focused_inactive $c-inactive  $c-inactive $c-text-dim $c-inactive  $c-ina
 client.unfocused        $c-unfocus   $c-unfocus  $c-text-dim $c-unfocus   $c-unfocus
 client.urgent           $c-urgent    $c-urgent   $c-text     $c-urgent    $c-urgent
 
+# Where this setup lives. Every script, theme and helper the config calls sits
+# under this one directory, so a fresh machine only has to change this line —
+# see the i3-xfce-fedora installer, which rewrites exactly this and nothing else.
+set $repo ~/i3-setup
+
 # ─── WORKSPACES ───────────────────────────────────────────────────────────────
 # Named via variables so renaming a workspace is a one-line change here.
 # Keep the leading number: i3 orders workspaces numerically only when the name
@@ -132,28 +137,34 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # Nothing else provides compositing here — xfwm4's compositor never runs,
 # because xfwm4 never runs. exec_always so it comes back after an i3 restart.
 # Config lives in this repo; validate it with:
-#   picom --config ~/i3-setup/picom.conf --diagnostics
+#   picom --config $repo/picom.conf --diagnostics
 # CAVEAT: that validator catches bad VALUES and syntax errors, but silently
 # ignores unknown option NAMES — a typo'd key is accepted and does nothing.
-exec_always --no-startup-id picom --config ~/i3-setup/picom.conf
+exec_always --no-startup-id picom --config $repo/picom.conf
 
 # ─── SESSION AUTOSTART ────────────────────────────────────────────────────────
 # The apps that should already be open after login. `exec`, NOT exec_always, so
 # an i3 restart does not open a second copy of everything (userguide 4.19).
 # Which app goes where is decided by the `assign` rules further down, not by
-# this line — see ~/i3-setup/scripts/autostart.sh, which is where the list of
+# this line — see $repo/scripts/autostart.sh, which is where the list of
 # apps lives.
-exec --no-startup-id ~/i3-setup/scripts/autostart.sh
+exec --no-startup-id $repo/scripts/autostart.sh
 
 # ─── LAUNCHING ────────────────────────────────────────────────────────────────
 bindsym $mod+Return exec --no-startup-id xfce4-terminal
 bindsym $mod+Shift+Return exec --no-startup-id thunar
+# Browser and file manager on their own keys. These displaced two layout
+# bindings, which moved rather than disappeared: `split h` is now $mod+x, and
+# `layout toggle split` is now $mod+Shift+s (which sits next to $mod+s stacking
+# and $mod+w tabbed).
+bindsym $mod+b exec --no-startup-id $repo/scripts/browser.sh
+bindsym $mod+e exec --no-startup-id thunar
 # AI Hub: the launcher page for every chatbot, on workspace 4. Serves itself
-# from 127.0.0.1 and opens in an --app window; see ~/i3-setup/ai-hub/.
-bindsym $mod+Shift+a exec --no-startup-id ~/i3-setup/ai-hub/bin/ai-hub
+# from 127.0.0.1 and opens in an --app window; see $repo/ai-hub/.
+bindsym $mod+Shift+a exec --no-startup-id $repo/ai-hub/bin/ai-hub
 # Straight into one chatbot, skipping the hub. Takes claude|chatgpt|deepseek.
 # NOTE $mod+Shift+c is already `reload` in this config, hence plain $mod+c.
-bindsym $mod+c exec --no-startup-id ~/i3-setup/scripts/aichat.sh claude
+bindsym $mod+c exec --no-startup-id $repo/scripts/aichat.sh claude
 
 # rofi replaces dmenu. `drun` lists .desktop applications; `window` is a window
 # switcher, which dmenu has no equivalent for. Theming is via a .rasi theme file,
@@ -162,11 +173,11 @@ bindsym $mod+c exec --no-startup-id ~/i3-setup/scripts/aichat.sh claude
 # -theme takes a path or an installed theme name (rofi(1):492). The theme lives
 # in this repo so it is version-controlled with the config it matches, and so
 # nothing is written outside ~/i3-setup and ~/.config/i3.
-bindsym $mod+d exec --no-startup-id rofi -show drun -theme ~/i3-setup/rofi/macos-adjacent.rasi
+bindsym $mod+d exec --no-startup-id rofi -show drun -theme $repo/rofi/macos-adjacent.rasi
 # Spotlight-style: $mod+space is the launcher. This displaced `focus
 # mode_toggle`, which moved to $mod+t.
-bindsym $mod+space exec --no-startup-id rofi -show drun -theme ~/i3-setup/rofi/macos-adjacent.rasi
-bindsym $mod+Tab exec --no-startup-id rofi -show window -theme ~/i3-setup/rofi/macos-adjacent.rasi
+bindsym $mod+space exec --no-startup-id rofi -show drun -theme $repo/rofi/macos-adjacent.rasi
+bindsym $mod+Tab exec --no-startup-id rofi -show window -theme $repo/rofi/macos-adjacent.rasi
 
 # ─── WINDOW MANAGEMENT ────────────────────────────────────────────────────────
 bindsym $mod+Shift+q kill
@@ -197,7 +208,7 @@ bindsym $mod+Shift+Right move right
 
 # Split direction for the NEXT window opened in this container.
 # $mod+h is now focus-left, so horizontal split moves to $mod+b.
-bindsym $mod+b split h
+bindsym $mod+x split h
 bindsym $mod+v split v
 
 bindsym $mod+f fullscreen toggle
@@ -205,7 +216,7 @@ bindsym $mod+f fullscreen toggle
 # Layouts: stacking = titles in a vertical list, tabbed = titles in a row.
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
-bindsym $mod+e layout toggle split
+bindsym $mod+Shift+s layout toggle split
 
 bindsym $mod+Shift+space floating toggle
 
@@ -230,9 +241,9 @@ bindsym $mod+a focus parent
 # script tags the window with an X property (_I3_MINIMIZED) that picom matches,
 # which is the only way to give minimizing its own animation. picom cannot
 # otherwise tell a minimize from a workspace switch — both reach it as the same
-# `hide` trigger. See ~/i3-setup/scripts/minimize.sh and picom.conf.
-bindsym $mod+m exec --no-startup-id ~/i3-setup/scripts/minimize.sh
-bindsym $mod+Shift+m exec --no-startup-id ~/i3-setup/scripts/unminimize.sh
+# `hide` trigger. See $repo/scripts/minimize.sh and picom.conf.
+bindsym $mod+m exec --no-startup-id $repo/scripts/minimize.sh
+bindsym $mod+Shift+m exec --no-startup-id $repo/scripts/unminimize.sh
 
 # ─── WORKSPACES ───────────────────────────────────────────────────────────────
 # `workspace number` matches on the leading digit, so these still work if a
@@ -429,7 +440,7 @@ bindsym $mod+r mode "resize  [hjkl or arrows]  shift = 1px  •  enter/esc = don
 # Path uses ~, the form the userguide itself uses (`exec_always ~/my_script.sh`,
 # userguide 4.19). Avoids any ambiguity about i3 substituting $-variables before
 # the shell sees them. No hardcoded /home/<user> path either way.
-bindsym $mod+Shift+e exec --no-startup-id ~/i3-setup/scripts/powermenu.sh
+bindsym $mod+Shift+e exec --no-startup-id $repo/scripts/powermenu.sh
 
 # Direct reload/restart, kept because they are muscle memory from the wizard config.
 bindsym $mod+Shift+c reload
