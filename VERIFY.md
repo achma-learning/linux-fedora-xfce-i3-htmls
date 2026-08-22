@@ -184,6 +184,18 @@ From your **next login** onward this section is automatic — that is what the `
       missing on this box. If `sudo dnf install fuse-libs` is ever run, the AppImage at
       ~/.local/bin/Obsidian.AppImage will also work directly.
 
+34. **Workspace 4 stacks, and nothing else does.** Open the hub (`$mod+Shift+a`) and then
+    an assistant from it: they should appear as stacked title bars, not side by side. Then
+    open two windows on any other empty workspace: those should split normally.
+    → Verified 2026-08-22 from `i3-msg -t get_tree`: ws4 `layout: "stacked"` with three
+      windows; ws1, ws3, ws5 `splith`; two fresh windows on ws7 `splith`.
+    → The rule fires on the HUB window, so the hub has to be what opens workspace 4 first —
+      it is, at login and on `$mod+Shift+a`. If an assistant somehow gets there first, that
+      workspace splits until the hub arrives; `$mod+s` fixes it by hand.
+    → Beware when changing this: a workspace that was stacked stays stacked. Setting
+      `workspace_layout stacking` globally and then removing it left workspace 5 stacked
+      until it was reset with `layout splith`.
+
 ## C. Known limitations, not bugs
 
 - **Binding-mode names are invisible.** The resize mode's name string is drawn by i3bar and

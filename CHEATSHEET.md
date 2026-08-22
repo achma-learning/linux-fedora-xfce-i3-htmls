@@ -50,6 +50,13 @@ Generated from `config.staged`. Every binding below is in that file.
 > `$mod+b` is horizontal split because `$mod+h` is focus-left here. In the stock
 > config `$mod+h` was the split — that binding is gone.
 
+> **Workspace 4 stacks; every other workspace splits normally.** The assistants there are
+> alternatives to each other, so they sit as a list of titles with one visible rather than
+> side by side. i3 has no per-workspace layout setting (`workspace_layout` is global), so
+> this is done from the window: `for_window [instance="^127\.0\.0\.1$"] layout stacking`
+> switches the container to stacking when the AI Hub appears, and everything that lands on
+> workspace 4 afterwards joins it. `$mod+e` still toggles that container back to a split.
+
 ### Resize mode (`$mod+r`)
 `h/j/k/l` or arrows resize by 10px. Hold `Shift` for 1px. `Enter`, `Escape`, or `$mod+r` exits.
 

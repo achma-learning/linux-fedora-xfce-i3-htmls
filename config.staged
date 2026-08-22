@@ -341,6 +341,20 @@ assign [window_role="^cliamp$"] → number $ws10
 # instance. This will also catch any OTHER --app window you ever serve from
 # 127.0.0.1; there is only the hub today.
 assign [instance="^127\\.0\\.0\\.1$"] → number $ws4
+# Workspace 4 stacks; every other workspace keeps i3's stock side-by-side split.
+#
+# i3 has no per-workspace layout setting — `workspace_layout` is global — so this
+# is done from the window instead: when the AI Hub appears, its container is
+# switched to stacking, and everything that lands on workspace 4 afterwards
+# joins that same container and stacks with it. The hub is opened at login by
+# scripts/autostart.sh and by $mod+Shift+a, so in practice it is always the
+# window that establishes the layout there.
+#
+# Consequence: on workspace 4 the assistants appear as a list of titles with one
+# visible, which is the point — they are alternatives to each other, not things
+# to look at side by side. $mod+e still toggles that container back to a split
+# if you want two of them at once.
+for_window [instance="^127\\.0\\.0\\.1$"] layout stacking
 assign [class="^AIChat$"]        → number $ws4
 # Ordinary browsing goes to 5; anything the browser opened as an APPLICATION
 # window goes to 4.
