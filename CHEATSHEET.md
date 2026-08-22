@@ -113,8 +113,9 @@ before it is made**, not applied and mentioned afterwards:
    they are deliberate (the top panel, fullscreen windows, i3 helper windows).
 2. **Full-width bottom dock** — panel-2, the 48px autohiding launcher bar. Both panels stay;
    the dock is rounded and shadowed, the top panel is flush.
-3. **Fade animations** — `fading = true` plus the `animations` block. Windows fade and scale
-   on open/close, and shrink downward on minimize.
+3. **Animations** — `fading = true` plus the `animations` block. Windows fade and scale on
+   open/close and on every workspace switch, fade between focused and unfocused, and shrink
+   downward to the bottom of the screen on minimize.
 
 Things that would quietly break one of these: switching picom's `rules` back to the legacy
 exclude options, setting `corner-radius = 0` globally, removing panel-2 from
@@ -169,5 +170,17 @@ Other things worth knowing:
 - To pull a *specific* window back rather than cycling, use criteria:
   `bindsym $mod+n [class="Anki"] scratchpad show`
 
-The downward shrink-and-fade is picom's `hide` animation, not i3's — i3 only unmaps the
-window. If the animation does not play, the config is still correct; see VERIFY.md.
+The downward shrink-and-fade is picom's animation, not i3's — i3 only unmaps the window.
+Confirmed working on 2026-08-22 from picom's own debug log.
+
+One wrinkle worth knowing, because it is deliberate. picom cannot see the difference between
+a minimize and a workspace switch: both reach it as the same `hide` trigger. So `$mod+m` runs
+`scripts/minimize.sh`, which tags the window with an X property (`_I3_MINIMIZED`) that a picom
+window rule matches — that tag is what buys the heavy fall-to-the-bottom animation instead of
+the light fade every window gets when you leave a workspace. `$mod+Shift+m` runs
+`scripts/unminimize.sh`, which removes the tag again a moment after the window is back, so the
+window does not keep dropping off the screen on ordinary workspace switches.
+
+The visible consequence: `$mod+Shift+m` pressed a *second* time (the toggle that re-hides a
+visible scratchpad window) plays the light fade, not the fall — the tag is already gone by
+then. Press `$mod+m` instead to minimize it properly.

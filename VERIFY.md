@@ -88,19 +88,30 @@ From your **next login** onward this section is automatic — that is what the `
 
 23. **Minimize.** Focus a window, press `$mod+m` — it vanishes. Press `$mod+Shift+m` — it
     returns, floating and centred. Press `$mod+Shift+m` again — it hides again.
-24. **Minimize animation.** With picom running, `$mod+m` should shrink the window downward
-    toward the bottom of the screen while fading; `$mod+Shift+m` reverses it.
-    → **This is the one part of the setup I could not verify.** The animation depends on i3's
-      scratchpad unmap being seen by picom as its `hide` trigger rather than `close`. The
-      config is correct either way — `hide`/`show` are documented, non-experimental triggers,
-      and every key is manpage-checked — but whether i3's unmap fires `hide` is a runtime
-      question and picom was not running when this was written.
-      If the window just disappears with no animation, check with:
-      ```bash
-      pkill picom; picom --config ~/i3-setup/picom.conf --log-level=debug 2>&1 | grep -i -e anim -e trigger
-      ```
-      then minimize a window and watch which trigger fires. If it reports `close` instead of
-      `hide`, tell me and I will move the animation onto that trigger — a one-line change.
+24. **Minimize animation.** With picom running, `$mod+m` shrinks the window downward toward
+    the bottom of the screen while fading; `$mod+Shift+m` reverses it.
+    → **Verified 2026-08-22**, which closes the one open question this file used to carry.
+      Method: picom restarted with `--log-level=debug --log-file=/tmp/p.log`, then each i3
+      action driven in turn and `grep "Starting animation" /tmp/p.log` read back. Result:
+      `$mod+m` → `hide`, `$mod+Shift+m` → `show`. Both are the triggers the config uses, so
+      the animation is on the right ones.
+25. **Workspace switching is animated.** Press `$mod+2`, then `$mod+1`. Windows on the
+    workspace you leave scale down and fade out; windows on the one you arrive at scale up
+    and fade in. Both are quick (0.14s / 0.15s) on purpose.
+    → Measured the same way: leaving a workspace fires `hide` for each window left behind,
+      arriving fires `open` for each window revealed. `hide` is therefore shared with
+      minimize — see the trigger table at the top of `picom.conf` for why
+      `scripts/minimize.sh` tags the window instead of relying on the trigger alone.
+26. **Focus changes are animated.** With two windows side by side, press `$mod+j` / `$mod+k`.
+    The window you leave fades back to 92% opacity over 0.2s, the one you move to comes up to
+    full over 0.13s.
+    → picom 13 has no `focus` trigger; this works through the `increase-opacity` /
+      `decrease-opacity` triggers, driven by the `!focused` rule in `picom.conf`. Confirmed
+      firing on this machine: `Starting animation decrease-opacity for window ... (tool -
+      Thunar)` when focus moved away, `increase-opacity` when it moved back.
+    → If unfocused windows being see-through is not to your taste, set that rule's
+      `opacity = 1.0` — the animations then have nothing to animate and focus changes go back
+      to being instant.
 
 ## C. Known limitations, not bugs
 

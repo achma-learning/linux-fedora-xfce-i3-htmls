@@ -14,13 +14,31 @@ base — not attempted, no packages installed for it.
   old i3 exit mode, bound to $mod+Shift+e
 - gaps inner 8, smart_gaps on, default_floating_border pixel 0
 - Anki tiles normally (float rule deliberately NOT added — main window should tile)
+- Animations (picom 13, all four states verified from picom's debug log on 2026-08-22):
+  open/close, workspace switch (light scale+fade both ways), focus change (unfocused normal
+  windows sit at 0.92 and the transition is animated), and minimize (shrink + fall to the
+  bottom of the screen). $mod+m / $mod+Shift+m now go through scripts/minimize.sh and
+  scripts/unminimize.sh, which tag the window with _I3_MINIMIZED so picom can tell a
+  minimize apart from a workspace switch — both reach it as the same `hide` trigger.
+- panel-2 restored after it was accidentally deleted: scripts/restore-panel-2.sh
 - All committed to git in this repo; ROLLBACK.md / undo.sh tested and working
 
 ## Still open, in priority order
 1. Bottom panel (panel-2) is full-width and flush to the screen edge, so picom's rounded
-   corners are clipped off-screen and invisible. Needs: shrink to content-width or a fixed
-   %, centered, PLUS vertical margin from the bottom edge. xfce4-panel version + available
-   xfconf properties not yet checked.
+   corners are clipped off-screen and invisible. **Now diagnosed, and it is not an xfconf
+   problem — i3 is the one placing it.** Measured 2026-08-22 (xfce4-panel 4.20.7, i3 4.25.1):
+     * `/panels/panel-2/length` = 30 with `length-adjust` true AND false, across a full
+       `xfce4-panel -q` + restart: the window stays 1600x60 at y=840 every time (measured
+       from i3's own tree and by capturing the window with `import -window <id>`).
+     * `/panels/panel-2/position` = `p=0;x=800;y=860` is ignored the same way.
+     * `i3-msg '[id=<dock>] floating enable'` returns success but the con stays
+       `floating: auto_off` — i3 refuses to float a dock client.
+   i3 pins dock-type windows to the top or bottom edge and stretches them to the output
+   width, and nothing in xfconf overrides that. So a centred, margined dock needs either a
+   different program for the bottom bar (one that can set override-redirect, e.g. polybar,
+   or possibly plank / cairo-dock — all three are in the Fedora 44 repos, none installed) or
+   giving up the floating look and styling the full-width bar instead. AWAITING A DECISION —
+   do not spend more time on xfconf here.
 2. xfce4-docklike-plugin and xfce4-statusnotifier-plugin are installed (confirmed present)
    but not yet added to any panel.
 3. Fn keys (XF86MonBrightness*, XF86Audio*) not yet verified via `xev` on this keyboard —

@@ -46,7 +46,7 @@ set $ws10 "10"
 # Noto Sans is actually installed on this box (checked with fc-list). NOT DejaVu
 # Sans: only DejaVu Sans *Mono* is present here, so "DejaVu Sans" would silently
 # fall back to something else. The font is still used for tabbed/stacked titles.
-font pango:Noto Sans 10
+font pango:JetBrains Mono 12
 
 # 1px hairline instead of a titlebar. `pixel 1` keeps the resize/indicator edge
 # while removing the title text — see userguide: "Default border style".
@@ -60,7 +60,7 @@ default_floating_border pixel 0
 # Gaps. Native since i3 4.22 (userguide 4.34 "Gaps") — i3-gaps was merged into
 # i3 and is NOT a separate package. Inner gaps only: the outer edge is left
 # flush so windows sit tight against the panel.
-gaps inner 8
+gaps inner 5
 
 # No gaps when a workspace holds exactly one window — a lone window sits
 # full-bleed instead of floating in a frame of empty space.
@@ -212,8 +212,13 @@ bindsym $mod+a focus parent
 # again — so $mod+Shift+m is a toggle once the window is up.
 # With several windows in the scratchpad, repeated `scratchpad show` cycles
 # through them.
-bindsym $mod+m move scratchpad
-bindsym $mod+Shift+m scratchpad show
+# The two bindings go through scripts rather than calling i3 directly: the
+# script tags the window with an X property (_I3_MINIMIZED) that picom matches,
+# which is the only way to give minimizing its own animation. picom cannot
+# otherwise tell a minimize from a workspace switch — both reach it as the same
+# `hide` trigger. See ~/i3-setup/scripts/minimize.sh and picom.conf.
+bindsym $mod+m exec --no-startup-id ~/i3-setup/scripts/minimize.sh
+bindsym $mod+Shift+m exec --no-startup-id ~/i3-setup/scripts/unminimize.sh
 
 # ─── WORKSPACES ───────────────────────────────────────────────────────────────
 # `workspace number` matches on the leading digit, so these still work if a
