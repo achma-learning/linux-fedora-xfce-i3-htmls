@@ -153,12 +153,6 @@ exec --no-startup-id $repo/scripts/autostart.sh
 # ─── LAUNCHING ────────────────────────────────────────────────────────────────
 bindsym $mod+Return exec --no-startup-id xfce4-terminal
 bindsym $mod+Shift+Return exec --no-startup-id thunar
-# Browser and file manager on their own keys. These displaced two layout
-# bindings, which moved rather than disappeared: `split h` is now $mod+x, and
-# `layout toggle split` is now $mod+Shift+s (which sits next to $mod+s stacking
-# and $mod+w tabbed).
-bindsym $mod+b exec --no-startup-id $repo/scripts/browser.sh
-bindsym $mod+e exec --no-startup-id thunar
 # AI Hub: the launcher page for every chatbot, on workspace 4. Serves itself
 # from 127.0.0.1 and opens in an --app window; see $repo/ai-hub/.
 bindsym $mod+Shift+a exec --no-startup-id $repo/ai-hub/bin/ai-hub
@@ -208,7 +202,7 @@ bindsym $mod+Shift+Right move right
 
 # Split direction for the NEXT window opened in this container.
 # $mod+h is now focus-left, so horizontal split moves to $mod+b.
-bindsym $mod+x split h
+bindsym $mod+b split h
 bindsym $mod+v split v
 
 bindsym $mod+f fullscreen toggle
@@ -216,7 +210,7 @@ bindsym $mod+f fullscreen toggle
 # Layouts: stacking = titles in a vertical list, tabbed = titles in a row.
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
-bindsym $mod+Shift+s layout toggle split
+bindsym $mod+e layout toggle split
 
 bindsym $mod+Shift+space floating toggle
 

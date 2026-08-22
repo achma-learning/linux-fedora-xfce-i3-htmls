@@ -40,8 +40,10 @@ base — not attempted, no packages installed for it.
   installed/updated by scripts/obsidian-update.sh, which topgrade also runs. Lands on ws6
   (verified). Flatpak was installed first and then removed — the user asked for the
   AppImage specifically.
-- i3-xfce-fedora/: a standalone installer repo that rebuilds this whole desktop on a
-  fresh Fedora box (install.sh), and capture.sh which pulls this machine back into it.
+- i3-xfce-fedora/: a SEPARATE git repo (gitignored here) that rebuilds this whole desktop
+  on a fresh Fedora box (install.sh), and capture.sh which pulls this machine back into
+  it. Applications are one script each under core/apps/ — fastfetch, cmatrix, flameshot,
+  xfdashboard, scrcpy, uad, and an opt-in bash-prompt (mybash).
   Structure follows ChrisTitusTech/linutil at the user's request. The config-side steps
   and the full --dry-run have been exercised here; the package-install steps have NOT
   been run on a fresh machine and say so in its README.
