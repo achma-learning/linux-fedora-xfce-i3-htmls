@@ -140,6 +140,9 @@ exec_always --no-startup-id picom --config ~/i3-setup/picom.conf
 # ─── LAUNCHING ────────────────────────────────────────────────────────────────
 bindsym $mod+Return exec --no-startup-id xfce4-terminal
 bindsym $mod+Shift+Return exec --no-startup-id thunar
+# AI chatbot in its own browser window (own WM_CLASS -> own workspace, see
+# WORKSPACE ASSIGNMENTS). Takes claude|chatgpt|deepseek|<url>; default claude.
+bindsym $mod+Shift+a exec --no-startup-id ~/i3-setup/scripts/aichat.sh claude
 
 # rofi replaces dmenu. `drun` lists .desktop applications; `window` is a window
 # switcher, which dmenu has no equivalent for. Theming is via a .rasi theme file,
@@ -286,6 +289,41 @@ for_window [window_type="menu"]    floating enable
 # how to check any app yourself.
 for_window [class="Pavucontrol"]   floating enable
 for_window [class="Blueman-manager"] floating enable
+
+# ─── WORKSPACE ASSIGNMENTS ────────────────────────────────────────────────────
+# `assign` fires once, when the application MAPS its window, and the FIRST
+# matching assignment wins — later ones are not considered (userguide 4.18).
+# So the specific AI-chat rule MUST come before the general browser rule, or the
+# browser rule would swallow it. Criteria are regexes matched as substrings,
+# hence the ^...$ anchors.
+#
+# class = the SECOND field of WM_CLASS (instance is the first). Verified with
+# xprop on live windows / the installed .desktop files:
+#   thunar          -> "thunar", "Thunar"
+#   xfce4-terminal  -> "xfce4-terminal", "Xfce4-terminal"   ($mod+Return)
+#   kitty           -> "kitty", "kitty"
+#   brave-origin    -> "brave-origin", "Brave-origin"
+# Brave Origin is the default browser here — `xdg-settings get
+# default-web-browser` returns brave-origin.desktop. aichat.sh resolves the
+# default at run time rather than hardcoding it, so this keeps working if the
+# default changes; only the class below would need updating.
+#
+# The chatbot rule matches on INSTANCE, not class. Measured with xprop on the
+# real window: Brave Origin IGNORES --class in --app mode and always reports
+# class "Brave-origin"; what it does change is the instance, which it derives
+# from the app URL — `--app=https://claude.ai/new` gives
+#   WM_CLASS(STRING) = "claude.ai__new", "Brave-origin"
+# so the instance is the only field that tells a chatbot window apart from an
+# ordinary browser window. (aichat.sh still passes --class, which is what
+# Firefox honours, in case the default browser changes.)
+# A normal browser window opened at claude.ai has instance "brave-origin", so
+# this does not catch it — only the --app window from aichat.sh.
+assign [instance="^(claude\.ai|chatgpt\.com|chat\.deepseek\.com)"] → number $ws4
+assign [class="^AIChat$"]        → number $ws4
+assign [class="^Brave-origin$"]  → number $ws5
+assign [class="^Thunar$"]        → number $ws1
+assign [class="^Xfce4-terminal$"] → number $ws3
+assign [class="^kitty$"]         → number $ws3
 
 # Anki: deliberately NOT floated. Its WM_CLASS is verified ("anki", "Anki") but
 # the main window is a full app you work in for hours, so it tiles like anything

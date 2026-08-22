@@ -113,6 +113,26 @@ From your **next login** onward this section is automatic — that is what the `
       `opacity = 1.0` — the animations then have nothing to animate and focus changes go back
       to being instant.
 
+27. **Apps land on their assigned workspaces.** Open the file manager (`$mod+Shift+Return`),
+    a terminal (`$mod+Return`), the browser, and the chatbot (`$mod+Shift+a`), then check
+    where each one went: `i3-msg -t get_tree` and look at the workspace each window sits in.
+    Expected 1 / 3 / 5 / 4 respectively.
+    → Verified 2026-08-22 by launching all four and reading the tree back:
+      Thunar ws=1, Xfce4-terminal ws=3, Brave-origin (instance brave-origin) ws=5,
+      Brave-origin (instance claude.ai__new) ws=4.
+    → The chatbot rule matches on **instance**, not class: Brave ignores `--class` in
+      `--app` mode. If it ever stops working, run `xprop WM_CLASS` on the chatbot window and
+      compare the FIRST field against the regex in the config.
+
+28. **Neither bar has holes in it.** Look along the bottom bar, especially behind the Fedora
+    menu icon and behind the active window's button in the task list, and along the very
+    left edge of the top bar. You should see bar, not wallpaper.
+    → A sliver of wallpaper there means something has put `background-color: transparent`
+      (or a `border-radius`) on `.xfce4-panel.background` in `~/.config/gtk-3.0/gtk.css`.
+      Plugins are separate X windows; that selector hits them too, and their pixels replace
+      the panel's. Colour the panels from xfconf instead. Verified clean 2026-08-22 by
+      screenshotting both bars over the wallpaper.
+
 ## C. Known limitations, not bugs
 
 - **Binding-mode names are invisible.** The resize mode's name string is drawn by i3bar and

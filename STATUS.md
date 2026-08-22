@@ -21,34 +21,54 @@ base — not attempted, no packages installed for it.
   scripts/unminimize.sh, which tag the window with _I3_MINIMIZED so picom can tell a
   minimize apart from a workspace switch — both reach it as the same `hide` trigger.
 - panel-2 restored after it was accidentally deleted: scripts/restore-panel-2.sh
+- Both panels are plain, full-width, translucent bars — top and bottom the same, XFCE
+  stock layout, styled only through per-panel xfconf (background-style 1 +
+  background-rgba 0.11/0.11/0.118/0.75). Bottom bar sized down for a 900px-tall screen:
+  size 36, icon-size 28, border-width 0 (window is 1600x36). gtk.css carries nothing but
+  button-hover polish. This replaced a floating macOS-style dock on 2026-08-22 — see
+  "Decisions taken and closed" below.
+- Workspace assignments (verified live, each app opened and its workspace read back from
+  i3's tree): file manager -> 1, terminal (xfce4-terminal and kitty) -> 3, AI chatbot -> 4,
+  default browser -> 5. $mod+Shift+a opens the chatbot via scripts/aichat.sh.
 - All committed to git in this repo; ROLLBACK.md / undo.sh tested and working
 
 ## Still open, in priority order
-1. Bottom panel (panel-2) is full-width and flush to the screen edge, so picom's rounded
-   corners are clipped off-screen and invisible. **Now diagnosed, and it is not an xfconf
-   problem — i3 is the one placing it.** Measured 2026-08-22 (xfce4-panel 4.20.7, i3 4.25.1):
-     * `/panels/panel-2/length` = 30 with `length-adjust` true AND false, across a full
-       `xfce4-panel -q` + restart: the window stays 1600x60 at y=840 every time (measured
-       from i3's own tree and by capturing the window with `import -window <id>`).
-     * `/panels/panel-2/position` = `p=0;x=800;y=860` is ignored the same way.
-     * `i3-msg '[id=<dock>] floating enable'` returns success but the con stays
-       `floating: auto_off` — i3 refuses to float a dock client.
-   i3 pins dock-type windows to the top or bottom edge and stretches them to the output
-   width, and nothing in xfconf overrides that. So a centred, margined dock needs either a
-   different program for the bottom bar (one that can set override-redirect, e.g. polybar,
-   or possibly plank / cairo-dock — all three are in the Fedora 44 repos, none installed) or
-   giving up the floating look and styling the full-width bar instead. AWAITING A DECISION —
-   do not spend more time on xfconf here.
-2. xfce4-docklike-plugin and xfce4-statusnotifier-plugin are installed (confirmed present)
-   but not yet added to any panel.
-3. Fn keys (XF86MonBrightness*, XF86Audio*) not yet verified via `xev` on this keyboard —
+1. xfce4-statusnotifier-plugin is installed but not added to any panel.
+   (xfce4-docklike-plugin IS now on panel-2 — it is plugin-24, the task list.)
+2. Fn keys (XF86MonBrightness*, XF86Audio*) not yet verified via `xev` on this keyboard —
    bindings exist in config but firing is unconfirmed.
-4. Full logout/login cycle not yet tested — everything so far was hand-started in a
+3. Full logout/login cycle not yet tested — everything so far was hand-started in a
    terminal. Need to confirm the five `exec` lines actually fire on real session start.
 
+## Decisions taken and closed
+**Floating macOS-style dock: TRIED, WORKED, THEN DELIBERATELY REMOVED (2026-08-22).**
+The blocker is i3, not xfconf: i3 pins every _NET_WM_WINDOW_TYPE_DOCK client to the top or
+bottom edge and stretches it to the output width. Measured on xfce4-panel 4.20.7 / i3
+4.25.1: `/panels/panel-2/length` is ignored with `length-adjust` both true and false across
+a full `xfce4-panel -q` + restart; `/panels/panel-2/position` is ignored; and
+`i3-msg '[id=<dock>] floating enable'` returns success while the con stays
+`floating: auto_off`.
+
+It was made to work anyway, by painting instead of resizing: two end separators with
+expand = true centred the plugins, and the panel's background was a generated PNG — a
+rounded, content-width pill with a shadow baked in, centred by
+`background-position: center` — regenerated on every i3 window event, because the docklike
+task list changes width whenever a window opens or closes. It looked right.
+
+It was removed anyway, at the user's call: too many moving parts to keep working across
+xfce4-panel/i3/picom updates, and the plugin wrappers kept leaking through it (a plug is a
+real X window whose pixels replace the panel's, so a transparent plug punches an actual
+hole — visible as a blue sliver behind the Fedora menu icon and around the active task).
+The code is in git history if it is ever wanted again; nothing of it is left in the tree.
+
+If someone wants a real floating dock later, the honest options are a bar program that can
+set override-redirect and so escape i3's dock handling (polybar), or plank / cairo-dock —
+all three are in the Fedora 44 repos, none installed, and installing needs sudo.
+
 ## Standing preferences (visual)
-Rounded corners + fade animations everywhere. Bottom bar: floating dock look, NOT flush
-full-width — visible margin on all sides, like macOS's dock, so corners actually render.
+Simple over clever. The desktop should fade into the background: plain full-width bars top
+and bottom, translucent, no ornament, nothing that needs babysitting after an update.
+Rounded corners + fade animations on WINDOWS are still wanted (picom already does this).
 Long-term wishlist, both confirmed technically blocked on this stack and not being chased
 further: real macOS-style appmenu (no registrar/consumer packaged on Fedora 44), and
 Compiz/KWin-style minimize-to-icon animation (picom animates rectangles only, no

@@ -42,6 +42,7 @@ Generated from `config.staged`. Every binding below is in that file.
 | `$mod+m` | **Minimize** — send window to the scratchpad |
 | `$mod+Shift+m` | **Un-minimize** — recall a scratchpad window |
 | — | Gaps are 8px inner, and vanish when a workspace holds one window (`smart_gaps on`) |
+| `$mod+Shift+a` | Open the **AI chatbot** in its own browser window (lands on workspace 4) |
 | `$mod+Shift+q` | Close window |
 | `$mod+r` | Enter **resize mode** |
 
@@ -111,8 +112,12 @@ before it is made**, not applied and mentioned afterwards:
 
 1. **Rounded corners** — `corner-radius = 10` in `picom.conf`, with square corners only where
    they are deliberate (the top panel, fullscreen windows, i3 helper windows).
-2. **Full-width bottom dock** — panel-2, the 48px autohiding launcher bar. Both panels stay;
-   the dock is rounded and shadowed, the top panel is flush.
+2. **Two plain full-width bars** — panel-1 on top (27px), panel-2 at the bottom (36px,
+   icon-size 28). Both are flush to the screen edge, square-cornered, no shadow, and get
+   their colour from per-panel xfconf (`background-style` 1 + `background-rgba`), NOT from
+   gtk.css. Both panels stay. A floating, content-width, rounded dock was built and then
+   deliberately removed on 2026-08-22 — simplicity won; see STATUS.md for why and for what
+   it would take to bring it back.
 3. **Animations** — `fading = true` plus the `animations` block. Windows fade and scale on
    open/close and on every workspace switch, fade between focused and unfocused, and shrink
    downward to the bottom of the screen on minimize.
@@ -120,6 +125,30 @@ before it is made**, not applied and mentioned afterwards:
 Things that would quietly break one of these: switching picom's `rules` back to the legacy
 exclude options, setting `corner-radius = 0` globally, removing panel-2 from
 `/panels/plugin-ids`, or setting `fading = false`.
+
+**Never put `background-color` or `border-radius` on `.xfce4-panel.background` in
+gtk.css.** That selector matches the panel window AND every out-of-process plugin's
+`wrapper-2.0` GtkPlug toplevel. A plug is a real X window whose pixels replace the panel's,
+so a radius turns each plugin into a pill and `transparent` punches a genuine hole through
+the bar (seen as a sliver of wallpaper behind the Fedora menu icon and around the active
+task). Colour the panels through xfconf instead — xfce4-panel then hands the same colour to
+every wrapper itself.
+
+## Workspace assignments
+
+| Opens on | What |
+|---|---|
+| 1 | Thunar (file manager) |
+| 3 | xfce4-terminal (`$mod+Return`) and kitty |
+| 4 | the AI chatbot window (`$mod+Shift+a`) |
+| 5 | Brave Origin, the default browser |
+
+The chatbot rule is the fiddly one. `scripts/aichat.sh` opens the default browser with
+`--app=<url>`, and Brave **ignores `--class` in app mode** — the window still reports class
+`Brave-origin`. What it does change is the instance, which it derives from the URL
+(`WM_CLASS = "claude.ai__new", "Brave-origin"`), so the i3 rule matches on `instance`, not
+`class`, and is placed before the general browser rule because the first matching `assign`
+wins. `aichat.sh claude|chatgpt|deepseek|<url>` picks the site.
 
 ## Global application menu (macOS menu bar) — NOT possible on Fedora 44
 
