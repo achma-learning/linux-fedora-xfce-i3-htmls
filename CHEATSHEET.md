@@ -142,6 +142,18 @@ every wrapper itself.
 | 3 | xfce4-terminal (`$mod+Return`) and kitty |
 | 4 | the AI chatbot window (`$mod+Shift+a`) |
 | 5 | Brave Origin, the default browser |
+| 8 | Anki |
+| 10 | cliamp, in a terminal started with `--role=cliamp` |
+
+These apply whenever the app opens — at login or by hand. **The login set is
+`~/i3-setup/scripts/autostart.sh`**: one line per app, called once from the i3 config with
+`exec` (not `exec_always`, so an i3 restart does not open a second copy of everything).
+Add a line there to have something else open at login; add an `assign` rule to say where.
+
+cliamp is the awkward one: it runs *inside* a terminal, so its window has the same WM_CLASS
+as any other xfce4-terminal. `autostart.sh` passes `--role=cliamp`, xfce4-terminal turns
+that into `WM_WINDOW_ROLE` (verified with xprop), and the `assign [window_role="^cliamp$"]`
+rule sits **before** the generic terminal rule, because the first matching assign wins.
 
 The chatbot rule is the fiddly one. `scripts/aichat.sh` opens the default browser with
 `--app=<url>`, and Brave **ignores `--class` in app mode** — the window still reports class

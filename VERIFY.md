@@ -133,6 +133,19 @@ From your **next login** onward this section is automatic — that is what the `
       the panel's. Colour the panels from xfconf instead. Verified clean 2026-08-22 by
       screenshotting both bars over the wallpaper.
 
+29. **The login set opens, on the right workspaces, at the right size.** Log out and back
+    in. Expected: Thunar on 1, a terminal on 3 **fullscreen**, cliamp in a terminal on 10,
+    the browser on 5, Anki on 8 **fullscreen**. Nothing should be opened twice.
+    → Check with `i3-msg -t get_tree`; each window's `fullscreen_mode` should be 1 for the
+      ws3 terminal and Anki. Verified 2026-08-22 for every app individually by launching it
+      and reading the tree back; the full login cycle itself is still untested (see
+      STATUS.md open item 3).
+    → Opened twice means `exec` was changed to `exec_always` — an i3 restart re-runs
+      exec_always.
+    → The ws3 terminal is fullscreen because it carries `--role=main-term`, not because it
+      is a terminal. A terminal opened by hand with `$mod+Return` is deliberately NOT
+      fullscreen.
+
 ## C. Known limitations, not bugs
 
 - **Binding-mode names are invisible.** The resize mode's name string is drawn by i3bar and

@@ -29,7 +29,14 @@ base — not attempted, no packages installed for it.
   "Decisions taken and closed" below.
 - Workspace assignments (verified live, each app opened and its workspace read back from
   i3's tree): file manager -> 1, terminal (xfce4-terminal and kitty) -> 3, AI chatbot -> 4,
-  default browser -> 5. $mod+Shift+a opens the chatbot via scripts/aichat.sh.
+  default browser -> 5, Anki -> 8, cliamp-in-a-terminal -> 10.
+  $mod+Shift+a opens the chatbot via scripts/aichat.sh.
+- Session autostart: scripts/autostart.sh, called once from the i3 config with `exec`
+  (not exec_always). Opens thunar, the session terminal, cliamp, the default browser and
+  Anki, staggered. The session terminal (--role=main-term) and Anki come up fullscreen;
+  both verified from i3's tree (fullscreen_mode = 1 on ws3 and ws8). Anki fills the area
+  between the two bars rather than covering them — that is Anki's own remembered state,
+  not the rule.
 - All committed to git in this repo; ROLLBACK.md / undo.sh tested and working
 
 ## Still open, in priority order
@@ -65,9 +72,16 @@ If someone wants a real floating dock later, the honest options are a bar progra
 set override-redirect and so escape i3's dock handling (polybar), or plank / cairo-dock —
 all three are in the Fedora 44 repos, none installed, and installing needs sudo.
 
+## Where this is going
+The point of the machine is **lifelong learning**. Anki on its own workspace at every login
+is the first piece of that, not a one-off request. When adding anything, the test is
+whether it serves study or gets out of the way — nothing that needs daily attention of its
+own. Nothing else about the learning system is designed yet; ask before assuming.
+
 ## Standing preferences (visual)
 Simple over clever. The desktop should fade into the background: plain full-width bars top
 and bottom, translucent, no ornament, nothing that needs babysitting after an update.
+The current bars are CONFIRMED as what is wanted (user, 2026-08-22) — do not redesign them.
 Rounded corners + fade animations on WINDOWS are still wanted (picom already does this).
 Long-term wishlist, both confirmed technically blocked on this stack and not being chased
 further: real macOS-style appmenu (no registrar/consumer packaged on Fedora 44), and

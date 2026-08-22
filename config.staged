@@ -137,6 +137,14 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # ignores unknown option NAMES — a typo'd key is accepted and does nothing.
 exec_always --no-startup-id picom --config ~/i3-setup/picom.conf
 
+# ─── SESSION AUTOSTART ────────────────────────────────────────────────────────
+# The apps that should already be open after login. `exec`, NOT exec_always, so
+# an i3 restart does not open a second copy of everything (userguide 4.19).
+# Which app goes where is decided by the `assign` rules further down, not by
+# this line — see ~/i3-setup/scripts/autostart.sh, which is where the list of
+# apps lives.
+exec --no-startup-id ~/i3-setup/scripts/autostart.sh
+
 # ─── LAUNCHING ────────────────────────────────────────────────────────────────
 bindsym $mod+Return exec --no-startup-id xfce4-terminal
 bindsym $mod+Shift+Return exec --no-startup-id thunar
@@ -318,12 +326,29 @@ for_window [class="Blueman-manager"] floating enable
 # Firefox honours, in case the default browser changes.)
 # A normal browser window opened at claude.ai has instance "brave-origin", so
 # this does not catch it — only the --app window from aichat.sh.
+# cliamp runs inside a terminal, so its window has the SAME WM_CLASS as any
+# other xfce4-terminal. What tells them apart is the role: autostart.sh passes
+# --role=cliamp, xfce4-terminal sets WM_WINDOW_ROLE from it (verified with
+# xprop), and this rule has to come before the generic terminal rule below.
+assign [window_role="^cliamp$"] → number $ws10
 assign [instance="^(claude\.ai|chatgpt\.com|chat\.deepseek\.com)"] → number $ws4
 assign [class="^AIChat$"]        → number $ws4
 assign [class="^Brave-origin$"]  → number $ws5
 assign [class="^Thunar$"]        → number $ws1
 assign [class="^Xfce4-terminal$"] → number $ws3
 assign [class="^kitty$"]         → number $ws3
+assign [class="^Anki$"]          → number $ws8
+
+# Start fullscreen. Scoped to the two windows autostart.sh opens, NOT to their
+# whole application class: `for_window [class="^Xfce4-terminal$"] fullscreen
+# enable` would fullscreen every terminal you ever open, including the cliamp
+# one, which is not the same wish. The session terminal is marked with
+# --role=main-term for exactly this reason; Anki needs no marker because there
+# is only ever one Anki window class.
+# for_window runs when the window appears, so `$mod+f` still toggles normally
+# afterwards.
+for_window [window_role="^main-term$"] fullscreen enable
+for_window [class="^Anki$"] fullscreen enable
 
 # Anki: deliberately NOT floated. Its WM_CLASS is verified ("anki", "Anki") but
 # the main window is a full app you work in for hours, so it tiles like anything
