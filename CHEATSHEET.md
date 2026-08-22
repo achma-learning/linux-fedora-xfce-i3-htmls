@@ -34,7 +34,7 @@ Generated from `config.staged`. Every binding below is in that file.
 |---|---|
 | `$mod+b` | Next window splits **horizontally** (side by side) |
 | `$mod+v` | Next window splits **vertically** (stacked) |
-| `$mod+s` | Stacking layout (titles in a vertical list) |
+| `$mod+s` | Stacking layout (titles in a vertical list) — **this is now the default** |
 | `$mod+w` | Tabbed layout (titles in a row) |
 | `$mod+e` | Toggle split direction |
 | `$mod+f` | Fullscreen toggle |
@@ -49,6 +49,13 @@ Generated from `config.staged`. Every binding below is in that file.
 
 > `$mod+b` is horizontal split because `$mod+h` is focus-left here. In the stock
 > config `$mod+h` was the split — that binding is gone.
+
+> **New windows stack by default** (`workspace_layout stacking`). Instead of the screen
+> splitting, windows pile up as a list of titles with one visible at a time. `$mod+e`
+> toggles the current container back to a split, `$mod+w` makes it tabbed. Title bars are
+> unavoidable in stacking and tabbed layouts — the userguide says so explicitly, and
+> `default_border pixel 1` does not remove them there. To go back to side-by-side as the
+> default, set `workspace_layout default` in the config; nothing else depends on it.
 
 ### Resize mode (`$mod+r`)
 `h/j/k/l` or arrows resize by 10px. Hold `Shift` for 1px. `Enter`, `Escape`, or `$mod+r` exits.

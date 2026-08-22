@@ -57,6 +57,22 @@ default_border pixel 1
 # cutting across the rounding.
 default_floating_border pixel 0
 
+# Stacking is the DEFAULT layout for every new workspace and container: windows
+# pile up as a list of titles with one visible, instead of splitting the screen.
+# `workspace_layout default|stacking|tabbed` (userguide 4.10).
+#
+# Two consequences worth knowing, both by design in i3:
+#   * Title bars come back. The userguide is explicit that "the title bar is
+#     always visible in stacking and tabbed layouts, and this cannot be changed
+#     through configuration" — `default_border pixel 1` above does NOT remove
+#     them here. That title list IS the interface; it is what you gain in
+#     exchange for the split.
+#   * This sets the DEFAULT only. $mod+e still toggles back to a split layout on
+#     the container you are in, $mod+w gives tabbed, $mod+s gives stacking again.
+# To go back to side-by-side as the default, change this to `workspace_layout
+# default` — nothing else depends on it.
+workspace_layout stacking
+
 # Gaps. Native since i3 4.22 (userguide 4.34 "Gaps") — i3-gaps was merged into
 # i3 and is NOT a separate package. Inner gaps only: the outer edge is left
 # flush so windows sit tight against the panel.
