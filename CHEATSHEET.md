@@ -42,7 +42,8 @@ Generated from `config.staged`. Every binding below is in that file.
 | `$mod+m` | **Minimize** — send window to the scratchpad |
 | `$mod+Shift+m` | **Un-minimize** — recall a scratchpad window |
 | — | Gaps are 8px inner, and vanish when a workspace holds one window (`smart_gaps on`) |
-| `$mod+Shift+a` | Open the **AI chatbot** in its own browser window (lands on workspace 4) |
+| `$mod+Shift+a` | Open the **AI Hub** launcher (lands on workspace 4) |
+| `$mod+c` | Open one chatbot directly, skipping the hub (`$mod+Shift+c` is `reload`) |
 | `$mod+Shift+q` | Close window |
 | `$mod+r` | Enter **resize mode** |
 
@@ -142,6 +143,8 @@ every wrapper itself.
 | 3 | xfce4-terminal (`$mod+Return`) and kitty |
 | 4 | the AI chatbot window (`$mod+Shift+a`) |
 | 5 | Brave Origin, the default browser |
+| 4 | the AI Hub (`$mod+Shift+a`) |
+| 6 | Obsidian |
 | 8 | Anki |
 | 10 | cliamp, in a terminal started with `--role=cliamp` |
 
@@ -154,6 +157,49 @@ cliamp is the awkward one: it runs *inside* a terminal, so its window has the sa
 as any other xfce4-terminal. `autostart.sh` passes `--role=cliamp`, xfce4-terminal turns
 that into `WM_WINDOW_ROLE` (verified with xprop), and the `assign [window_role="^cliamp$"]`
 rule sits **before** the generic terminal rule, because the first matching assign wins.
+
+## AI Hub — workspace 4
+
+`~/i3-setup/ai-hub/` is a self-contained little project (its own README, meant to be split
+out into its own git repo whenever you want): a one-screen, keyboard-driven launcher for
+the twelve major assistants, plus a userscript that puts a `✦ AI` button inside the
+chatbots themselves so you can hop between them without going back to the hub.
+
+- `$mod+Shift+a` opens it. Arrows move, `↵` opens, `f` favourites, `/` searches.
+- `data/ai.json` is the list. Add an object there and the grid, the filters and the count
+  all follow. To get it in the in-page switcher too, add the same entry to the `AI` array
+  in `userscript/ai-hub.user.js`.
+- Install `userscript/ai-hub.user.js` in Violentmonkey/Tampermonkey to get the button.
+
+Two things that look odd and are deliberate:
+
+**It runs a local web server.** `bin/ai-hub` serves the folder on `127.0.0.1:8765` and
+opens *that*, rather than the file directly, because browsers refuse `fetch()` from a
+`file://` page — a file-URL hub shows an empty grid. It also gives the userscript a fixed
+address to send you back to. The server is started only if the port is not already
+answering, so launching twice is harmless.
+
+**The assistant list exists twice.** A userscript on `claude.ai` cannot read from
+`127.0.0.1` (cross-origin), and standing up a CORS service to share twelve lines of data
+would cost more than it saves. Adding an assistant in two files is the entire maintenance
+burden of the thing.
+
+## Obsidian
+
+Not in the Fedora repos, and an rpm install needs root, so it is the **AppImage**, owned by
+you, in `~/.local/opt/obsidian`, with an `obsidian` wrapper on `$PATH`.
+`~/i3-setup/scripts/obsidian-update.sh` installs and updates it; **topgrade runs it too**
+(`[commands]` in `~/.config/topgrade.toml`), so "update everything" keeps it current.
+
+Two wrinkles the script works around, both verified here:
+
+- `/releases/latest` on the Obsidian repo returned an **Android-only** release (v1.13.8,
+  one `.apk`). Desktop and mobile are separate releases in the same repo, so the script
+  walks recent releases and takes the first that actually ships an x86_64 AppImage.
+- The AppImage cannot self-mount: `fuse` and `fuse3` are installed and `/dev/fuse` exists,
+  but **`fuse-libs` (libfuse.so.2) is not**, and installing it needs root. So the script
+  unpacks the AppImage once at update time and runs the extracted tree. If you would rather
+  run the AppImage directly: `sudo dnf install fuse-libs`.
 
 The chatbot rule is the fiddly one. `scripts/aichat.sh` opens the default browser with
 `--app=<url>`, and Brave **ignores `--class` in app mode** — the window still reports class

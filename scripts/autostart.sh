@@ -13,6 +13,8 @@
 #   thunar                     -> workspace 1
 #   xfce4-terminal             -> workspace 3, fullscreen (--role=main-term)
 #   brave-origin (default browser) -> workspace 5
+#   AI Hub                     -> workspace 4
+#   obsidian                   -> workspace 6
 #   anki                       -> workspace 8, fullscreen
 #   cliamp in a terminal       -> workspace 10   (via --role=cliamp)
 #
@@ -55,6 +57,14 @@ sleep 1
 # gives every window the same WM_CLASS, but it passes --role through, and i3's
 # `assign` can match on window_role. Verified with xprop.
 launch xfce4-terminal --role=cliamp --title=cliamp --command=cliamp
+sleep 2
+
+# The AI Hub launcher. Its own script starts the little local server it needs
+# and opens it as an --app window; see ~/i3-setup/ai-hub/bin/ai-hub.
+"$HOME/i3-setup/ai-hub/bin/ai-hub" >/dev/null 2>&1 &
+sleep 2
+
+launch obsidian
 sleep 2
 
 if browser=$(default_browser); then

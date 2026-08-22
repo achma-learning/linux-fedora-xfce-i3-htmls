@@ -148,9 +148,12 @@ exec --no-startup-id ~/i3-setup/scripts/autostart.sh
 # ─── LAUNCHING ────────────────────────────────────────────────────────────────
 bindsym $mod+Return exec --no-startup-id xfce4-terminal
 bindsym $mod+Shift+Return exec --no-startup-id thunar
-# AI chatbot in its own browser window (own WM_CLASS -> own workspace, see
-# WORKSPACE ASSIGNMENTS). Takes claude|chatgpt|deepseek|<url>; default claude.
-bindsym $mod+Shift+a exec --no-startup-id ~/i3-setup/scripts/aichat.sh claude
+# AI Hub: the launcher page for every chatbot, on workspace 4. Serves itself
+# from 127.0.0.1 and opens in an --app window; see ~/i3-setup/ai-hub/.
+bindsym $mod+Shift+a exec --no-startup-id ~/i3-setup/ai-hub/bin/ai-hub
+# Straight into one chatbot, skipping the hub. Takes claude|chatgpt|deepseek.
+# NOTE $mod+Shift+c is already `reload` in this config, hence plain $mod+c.
+bindsym $mod+c exec --no-startup-id ~/i3-setup/scripts/aichat.sh claude
 
 # rofi replaces dmenu. `drun` lists .desktop applications; `window` is a window
 # switcher, which dmenu has no equivalent for. Theming is via a .rasi theme file,
@@ -331,6 +334,13 @@ for_window [class="Blueman-manager"] floating enable
 # --role=cliamp, xfce4-terminal sets WM_WINDOW_ROLE from it (verified with
 # xprop), and this rule has to come before the generic terminal rule below.
 assign [window_role="^cliamp$"] → number $ws10
+# The AI Hub launcher. It is served from a local static server and opened with
+# --app, so Brave derives the instance from the host: WM_CLASS is
+# "127.0.0.1", "Brave-origin" (read off the live window). Class is useless here
+# — it is the same "Brave-origin" as every other Brave window — so match the
+# instance. This will also catch any OTHER --app window you ever serve from
+# 127.0.0.1; there is only the hub today.
+assign [instance="^127\\.0\\.0\\.1$"] → number $ws4
 assign [instance="^(claude\.ai|chatgpt\.com|chat\.deepseek\.com)"] → number $ws4
 assign [class="^AIChat$"]        → number $ws4
 assign [class="^Brave-origin$"]  → number $ws5
@@ -338,6 +348,10 @@ assign [class="^Thunar$"]        → number $ws1
 assign [class="^Xfce4-terminal$"] → number $ws3
 assign [class="^kitty$"]         → number $ws3
 assign [class="^Anki$"]          → number $ws8
+# Obsidian, installed as an unpacked AppImage (scripts/obsidian-update.sh).
+# WM_CLASS read off the live window: "md.obsidian.obsidian", "md.obsidian.Obsidian".
+# The dots are regex metacharacters, hence the backslashes.
+assign [class="^md\.obsidian\.Obsidian$"] → number $ws6
 
 # Start fullscreen. Scoped to the two windows autostart.sh opens, NOT to their
 # whole application class: `for_window [class="^Xfce4-terminal$"] fullscreen

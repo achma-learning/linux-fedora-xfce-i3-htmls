@@ -31,6 +31,15 @@ base — not attempted, no packages installed for it.
   i3's tree): file manager -> 1, terminal (xfce4-terminal and kitty) -> 3, AI chatbot -> 4,
   default browser -> 5, Anki -> 8, cliamp-in-a-terminal -> 10.
   $mod+Shift+a opens the chatbot via scripts/aichat.sh.
+- AI Hub (ai-hub/): a one-screen keyboard launcher for 12 assistants + a userscript that
+  injects a switcher button into the chatbots. Data lives in ai-hub/data/ai.json.
+  $mod+Shift+a opens it; it lands on ws4 (verified from i3's tree). Meant to become its own
+  git repo — it has its own README and is self-contained; nothing outside it depends on it
+  except two lines of i3 config and one line of autostart.sh.
+- Obsidian: AppImage, unpacked to ~/.local/opt/obsidian, `obsidian` wrapper on $PATH,
+  installed/updated by scripts/obsidian-update.sh, which topgrade also runs. Lands on ws6
+  (verified). Flatpak was installed first and then removed — the user asked for the
+  AppImage specifically.
 - Session autostart: scripts/autostart.sh, called once from the i3 config with `exec`
   (not exec_always). Opens thunar, the session terminal, cliamp, the default browser and
   Anki, staggered. The session terminal (--role=main-term) and Anki come up fullscreen;
@@ -73,10 +82,19 @@ set override-redirect and so escape i3's dock handling (polybar), or plank / cai
 all three are in the Fedora 44 repos, none installed, and installing needs sudo.
 
 ## Where this is going
-The point of the machine is **lifelong learning**. Anki on its own workspace at every login
-is the first piece of that, not a one-off request. When adding anything, the test is
-whether it serves study or gets out of the way — nothing that needs daily attention of its
-own. Nothing else about the learning system is designed yet; ask before assuming.
+The point of the machine is **lifelong learning**, and the workspace layout is the shape of
+it — every workspace is one mode of work, and the same app always lands in the same place:
+
+    1  files        3  terminal      6  Obsidian (notes)    8  Anki (recall)
+    4  AI           5  browser      10  music
+
+Anki for recall and Obsidian for notes are the two halves; the AI workspace is the third
+tool, not the point. When adding anything the test is whether it serves study or gets out
+of the way — nothing that needs daily attention of its own.
+
+Not designed yet, ask before assuming: how notes get from reading into Obsidian, and how
+they get from Obsidian into Anki. That link is the actual system; everything so far is
+only the furniture.
 
 ## Standing preferences (visual)
 Simple over clever. The desktop should fade into the background: plain full-width bars top

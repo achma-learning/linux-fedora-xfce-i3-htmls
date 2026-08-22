@@ -146,6 +146,34 @@ From your **next login** onward this section is automatic — that is what the `
       is a terminal. A terminal opened by hand with `$mod+Return` is deliberately NOT
       fullscreen.
 
+30. **The AI Hub opens on workspace 4 and fills the screen without scrolling.**
+    Press `$mod+Shift+a`. A window titled "AI Hub" should appear on workspace 4 showing a
+    flush grid of assistant cards — no scrollbar, no empty last row.
+    → Verified 2026-08-22: window `instance=127.0.0.1 class=Brave-origin` on ws4, 4x3 grid,
+      screenshotted.
+    → An EMPTY grid saying it could not load data/ai.json means the page was opened as a
+      `file://` URL. Use `ai-hub/bin/ai-hub`, which serves it over http — browsers block
+      `fetch()` on file URLs.
+    → Nothing on ws4 at all: check the assign rule matches. Chromium-family browsers give
+      every `--app` window the same WM_CLASS and vary only the instance, so the rule keys
+      on `instance`, not `class`.
+
+31. **The ✦ AI button appears inside chatbots.** With the userscript installed in
+    Violentmonkey/Tampermonkey, open claude.ai. A small `✦ AI` button sits top-right;
+    `alt`+`a` opens the switcher.
+    → Verified 2026-08-22 by running the script in a real Brave window against a local test
+      page and confirming both that it executed without error and that the button rendered.
+      NOT verified inside an actual chatbot site — no userscript manager is installed yet.
+
+32. **Obsidian opens on workspace 6, and updates with everything else.**
+    `obsidian` from a terminal, or log in and look at ws6.
+    → Verified 2026-08-22: window class `md.obsidian.Obsidian` on ws6.
+    → `~/i3-setup/scripts/obsidian-update.sh` prints "already on <tag>" when current; run it
+      with `--force` to reinstall. `topgrade` runs it as the "Obsidian" custom command.
+    → It runs the UNPACKED AppImage from ~/.local/opt/obsidian, because libfuse.so.2 is
+      missing on this box. If `sudo dnf install fuse-libs` is ever run, the AppImage at
+      ~/.local/bin/Obsidian.AppImage will also work directly.
+
 ## C. Known limitations, not bugs
 
 - **Binding-mode names are invisible.** The resize mode's name string is drawn by i3bar and
