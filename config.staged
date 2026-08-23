@@ -97,6 +97,23 @@ tiling_drag modifier
 # which i3 honours automatically, so tiled windows will not slide under it.
 # Removing this block also retires i3status and the $refresh_i3status variable.
 
+# ─── COMPOSITOR ───────────────────────────────────────────────────────────────
+# Compositor: shadows/fade/blur/rounded corners, and vsync to stop tearing.
+# Nothing else provides compositing here — xfwm4's compositor never runs,
+# because xfwm4 never runs. exec_always so it comes back after an i3 restart.
+# Config lives in this repo; validate it with:
+#   picom --config $repo/picom.conf --diagnostics
+# CAVEAT: that validator catches bad VALUES and syntax errors, but silently
+# ignores unknown option NAMES — a typo'd key is accepted and does nothing.
+#
+# THIS LINE MUST COME BEFORE xfce4-panel. i3 runs exec lines in file order, and
+# every out-of-process panel plugin picks its X visual once, at startup: with no
+# compositor owning _NET_WM_CM_S0 at that moment it gets an opaque one and paints
+# a dark rectangle behind its icons for the rest of the session. Ordering alone
+# is not enough either — "started" is not "ready" — so the panel is launched
+# through scripts/start-panel.sh, which waits for the selection.
+exec_always --no-startup-id picom --config $repo/picom.conf
+
 # ─── XFCE COMPONENTS (Route B) ────────────────────────────────────────────────
 # Verified against /etc/xdg/autostart: every one of these .desktop files is
 # OnlyShowIn=XFCE, so dex-autostart --environment i3 does NOT start them and
@@ -111,7 +128,7 @@ tiling_drag modifier
 # keeps the ALREADY-RUNNING components attached — nothing is started twice and
 # nothing is killed.
 exec --no-startup-id xfsettingsd
-exec --no-startup-id xfce4-panel
+exec --no-startup-id $repo/scripts/start-panel.sh
 exec --no-startup-id xfce4-power-manager
 exec --no-startup-id thunar --daemon
 
@@ -132,15 +149,6 @@ exec --no-startup-id dex-autostart --autostart --environment i3
 # Lock before suspend. xss-lock takes a logind sleep-inhibit lock so i3lock is
 # on screen before the machine actually suspends, not after it wakes.
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
-
-# Compositor: shadows/fade/blur/rounded corners, and vsync to stop tearing.
-# Nothing else provides compositing here — xfwm4's compositor never runs,
-# because xfwm4 never runs. exec_always so it comes back after an i3 restart.
-# Config lives in this repo; validate it with:
-#   picom --config $repo/picom.conf --diagnostics
-# CAVEAT: that validator catches bad VALUES and syntax errors, but silently
-# ignores unknown option NAMES — a typo'd key is accepted and does nothing.
-exec_always --no-startup-id picom --config $repo/picom.conf
 
 # ─── SESSION AUTOSTART ────────────────────────────────────────────────────────
 # The apps that should already be open after login. `exec`, NOT exec_always, so

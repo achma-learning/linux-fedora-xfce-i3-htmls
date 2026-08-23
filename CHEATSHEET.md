@@ -231,6 +231,19 @@ xfdashboard (the XFCE overview/dock), scrcpy, uad (Universal Android Debloater),
 `bash-prompt` (ChrisTitusTech's mybash — **opt-in**, it replaces `~/.bashrc`).
 `./core/35-applications.sh --list` shows them.
 
+## Why the panel is started by a script
+
+`exec --no-startup-id $repo/scripts/start-panel.sh`, not `exec xfce4-panel`, and picom's
+line sits above it.
+
+Every out-of-process panel plugin (whiskermenu, the docklike task list) is a GtkPlug in
+its own process, and GTK picks that window's X visual **once, at startup**. If nothing owns
+`_NET_WM_CM_S0` at that moment it gets an opaque visual and paints a dark rectangle behind
+its icons for the whole session. That was the "dark background on the dock app" bug — not
+theming. Ordering picom first is necessary but not sufficient, because *started* is not
+*ready*, so the launcher waits for the selection itself and gives up after 10s rather than
+leaving you with no bar.
+
 ## Obsidian
 
 Not in the Fedora repos, and an rpm install needs root, so it is the **AppImage**, owned by

@@ -221,6 +221,19 @@ From your **next login** onward this section is automatic — that is what the `
     → If `$mod+b` does nothing, check `scripts/browser.sh` is executable and that
       `xdg-settings get default-web-browser` names a .desktop file that actually exists.
 
+37. **The panels have no dark blocks behind their plugins after a FRESH LOGIN.**
+    This is the one that only shows up on a real login, so it cannot be checked by
+    restarting things by hand. Log out, log back in, and look at the Fedora menu icon and
+    the task list: their backgrounds should be the same translucent bar as everything else.
+    → Cause if they are dark: a plugin's wrapper process started before any compositor
+      owned `_NET_WM_CM_S0`, so GTK gave it an opaque visual for the session. `xfce4-panel -r`
+      fixes it there and then.
+    → Prevented two ways, both now in the config: picom's `exec_always` line comes BEFORE
+      every XFCE component, and the panel is started by `scripts/start-panel.sh`, which
+      waits for the compositor selection rather than guessing with a sleep.
+    → `i3-xfce-fedora/core/99-verify.sh` checks both, so the ordering cannot be undone by
+      accident.
+
 ## C. Known limitations, not bugs
 
 - **Binding-mode names are invisible.** The resize mode's name string is drawn by i3bar and
