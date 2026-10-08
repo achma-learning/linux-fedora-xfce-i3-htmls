@@ -16,8 +16,9 @@
 # place_once() below.
 #
 #   thunar                     -> workspace 1 AT LOGIN ONLY (place_once below)
-#   xfce4-terminal             -> workspace 3 AT LOGIN ONLY, fullscreen
+#   xfce4-terminal             -> workspace 2 AT LOGIN ONLY, fullscreen
 #                              (--role=main-term + a for_window rule)
+#   deck                       -> workspace 3
 #   brave-origin (default browser) -> workspace 5
 #   AI Hub                     -> workspace 4
 #   obsidian                   -> workspace 6
@@ -29,6 +30,11 @@
 # here depends on the order, so if you add an app just append a line.
 
 set -u
+
+# The i3 session does not necessarily inherit a login shell's PATH, and two of
+# the apps below live in ~/.local/bin (deck, cliamp). Without this they fail the
+# `command -v` test in launch() and are skipped with a message nobody reads.
+export PATH="$HOME/.local/bin:$PATH"
 
 launch() { command -v "$1" >/dev/null || { echo "autostart: $1 not installed, skipped" >&2; return; }; "$@" & }
 
@@ -92,8 +98,26 @@ launch xfce4-terminal --role=cliamp --title=cliamp --command=cliamp
 sleep 2
 
 # The AI Hub launcher. Its own script starts the little local server it needs
-# and opens it as an --app window; see ~/i3-setup/ai-hub/bin/ai-hub.
-"$HOME/i3-setup/ai-hub/bin/ai-hub" >/dev/null 2>&1 &
+# and opens it as an --app window; see ai-hub/bin/ai-hub.
+#
+# Addressed RELATIVE TO THIS SCRIPT, not as ~/i3-setup/ai-hub. The hub and this
+# script are two files in the same tree, and that tree is wherever the repo was
+# cloned — a hardcoded ~/i3-setup is right on the machine this was captured
+# from and wrong on every other one, where it fails silently and workspace 4
+# stays empty with no error anywhere.
+AI_HUB="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)/ai-hub/bin/ai-hub"
+if [ -x "$AI_HUB" ]; then
+  "$AI_HUB" >/dev/null 2>&1 &
+else
+  echo "autostart: no AI Hub at $AI_HUB, skipped" >&2
+fi
+sleep 2
+
+# The deck — the orientation console on workspace 3 (day spine, the week, life
+# in weeks). Its own launcher starts the static server it needs and opens it as
+# an --app window; the i3 config assigns it by instance. Installed separately,
+# to ~/.local/share/deck, so this is a plain `launch` like any other app.
+launch deck
 sleep 2
 
 launch obsidian
